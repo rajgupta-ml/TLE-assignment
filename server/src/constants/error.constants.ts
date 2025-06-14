@@ -6,6 +6,7 @@ export enum DbErrorCodes {
     CAST_ERROR = 'DB_CAST_ERROR',
     NETWORK_ERROR = 'DB_NETWORK_ERROR',
     UNKNOWN_ERROR = 'DB_UNKNOWN_ERROR',
+    NOT_FOUND = "DB_DATA_NOT_FOUDN"
   }
   
   export enum DbErrorMessages {
@@ -17,6 +18,11 @@ export enum DbErrorCodes {
   }
 
   export enum GenericMessage {
+    STUDENT_NAME_REQUIRED = "student name is required",
+    EMAIL_REQUIRED = "email is required",
+    CODEFORCE_HANDLE_REQUIRED = "codeforce handle is required",
+    PHONE_REQUIRED = "phone is required",
+
     INTERNAL_SERVER_ERROR = "Internal Server Error",
     TOKEN_NOT_PROVIDED = "Authentication token not provided",
     INVALID_TOKEN = "Invalid or malformed token",

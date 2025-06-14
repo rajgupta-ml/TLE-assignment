@@ -4,12 +4,13 @@ import type {
     Request,
     Response,
 } from 'express';
-import { DbError } from '../error/dbError';
+import { DbError } from './../error/dbError';
 import { HttpStatusCode } from '../constants/httpStatusCode.constants';
 import { GenericMessage } from '../constants/error.constants';
+import { ApiError } from '../error/apiError';
 
 
-type IErr = DbError | Error
+type IErr = DbError | ApiError | Error
 export const errorHandler: ErrorRequestHandler = (
     err: IErr,
     req: Request,
@@ -18,7 +19,7 @@ export const errorHandler: ErrorRequestHandler = (
 ) => {
     console.error(err);
 
-    if (err instanceof DbError) {
+    if (err instanceof DbError || err instanceof ApiError) {
         console.log(err);
         res.status(Number(err.statusCode)).json({
             success: false,

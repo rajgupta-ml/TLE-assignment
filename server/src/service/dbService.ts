@@ -1,7 +1,8 @@
 import type mongoose from "mongoose";
-import { DbError } from "../error/dbError";
+import { DbError } from "./../error/dbError";
 import { HttpStatusCode } from "../constants/httpStatusCode.constants";
 import { DbErrorCodes, DbErrorMessages } from "../constants/error.constants";
+import type { SortOrder } from "mongoose";
 
 class DbService<T extends mongoose.Document> {
     
@@ -76,6 +77,7 @@ class DbService<T extends mongoose.Document> {
         const newDocument = new this.model(data);
         return await newDocument.save();
       } catch (error) {
+        console.log(error);
         this._handleDbError(error, 'creating document',  data );
       }
     }
@@ -97,13 +99,41 @@ class DbService<T extends mongoose.Document> {
       }
     }
   
-    async getAll(filter : Record<string, string> = {}, projection : Record<string,string> = {}, options : Record<string, string> = {}) {
-      try {
-        return await this.model.find(filter, projection, options).lean();
-      } catch (error) {
-        this._handleDbError(error, 'getting all documents',  {filter : JSON.stringify(filter), options : JSON.stringify(options)} );
-      }
+    async getAll(
+      filter: Record<string, any> = {},
+      projection: Record<string, string> = {},
+      page: number = 1,
+      limit: number = 10,
+      sortOptions: Record<string, SortOrder> = {} // Changed type here
+      ): Promise<{ data: T[]; total: number; page: number; pages: number; limit: number }> {
+    try {
+      const skip = (page - 1) * limit;
+      const total = await this.model.countDocuments(filter);
+      const data= await this.model
+        .find(filter, projection)
+        .skip(skip)
+        .limit(limit)
+        .sort(sortOptions) // Apply sorting
+        .lean() as T[];
+
+      const pages = Math.ceil(total / limit);
+
+      return {
+        data,
+        total,
+        page,
+        pages,
+        limit,
+      };
+    } catch (error) {
+      this._handleDbError(error, 'getting all documents with pagination', {
+        filter: JSON.stringify(filter),
+        page,
+        limit,
+        sortOptions: JSON.stringify(sortOptions),
+      });
     }
+  }
   
     /**
      * @method update

@@ -7,6 +7,9 @@ function requireEnv(key: string): string {
   export const config = {
     server: {
       PORT: requireEnv("PORT"),
+    },
+    db : {
+        URI : requireEnv("MONGO_DB_URI")
     }
   }
   
