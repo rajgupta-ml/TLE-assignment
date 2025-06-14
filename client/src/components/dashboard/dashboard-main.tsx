@@ -1,19 +1,38 @@
 // src/components/dashboard/dashboard-main.tsx
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Calendar1Icon, Search, Plus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardOverviewCards } from "./dashboard-overview-cards";
 import { StudentsDataTable } from "./student-data-table";
 import { downloadCSV } from "@/lib/helpers/dashboard-helpers";
 import { studentsData } from "@/data/dashboard-data";
+import { Student } from "@/types";
+import AddStudentPopup from "./add-student-popup";
 
+type AddStudent = Omit<Student, "currentRating" | "maxRating" | "progress">;
 export const DashboardMain = () => {
   const dateStr = new Date().toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
+
+  const [students, setStudents] = useState<AddStudent[]>(studentsData);
+  const [open, setOpen] = useState(false);
+
+  const handleAddStudent = (student: {
+    name: string;
+    email: string;
+    phone: string;
+    codeforcesHandle: string;
+  }) => {
+    const newStudent: AddStudent = {
+      id: String(students.length + 1),
+      ...student,
+    };
+    setStudents([...students, newStudent]);
+  };
 
   return (
     <div className="flex flex-1 max-w-[3840px] mx-auto">
@@ -36,14 +55,22 @@ export const DashboardMain = () => {
           <h1 className="text-6xl font-bold">Dashboard</h1>
           <div className="flex gap-3">
             <Button
-              onClick={() => downloadCSV(studentsData)} // Pass studentsData to helper
+              onClick={() => downloadCSV(studentsData)}
               variant="outline"
               className="flex items-center gap-2"
             >
               <Download className="h-4 w-4" />
               Download CSV
             </Button>
-            <Button className="flex items-center gap-2 bg-[oklch(0.969_0.0154_247.99)] hover:bg-[oklch(0.949_0.0154_247.99)] text-gray-900">
+            <AddStudentPopup
+              onAddStudent={handleAddStudent}
+              open={open}
+              setOpen={setOpen}
+            />
+            <Button
+              onClick={() => setOpen(true)}
+              className="flex items-center gap-2 bg-[oklch(0.969_0.0154_247.99)] hover:bg-[oklch(0.949_0.0154_247.99)] text-gray-900 cursor-pointer"
+            >
               <Plus className="h-4 w-4" />
               Add Student
             </Button>

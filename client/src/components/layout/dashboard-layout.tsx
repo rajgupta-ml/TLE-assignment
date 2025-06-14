@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import { Logo, LogoIcon } from "@/components/common/logo"; // Import from common
+import { Logo, LogoIcon } from "@/components/logo/logo"; // Import from common
 import { sidebarLinks, adminLink } from "@/data/dashboard-data"; // Import data
 import { DashboardMain } from "@/components/dashboard/dashboard-main"; // Import DashboardMain
 
