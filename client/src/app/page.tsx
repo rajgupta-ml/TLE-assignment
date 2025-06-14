@@ -2,7 +2,11 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import React from "react";
 
 const page = () => {
-  return <DashboardLayout />;
+  return (
+    <div className="bg-[var(--color-foreground)]">
+      <DashboardLayout />
+    </div>
+  );
 };
 
 export default page;

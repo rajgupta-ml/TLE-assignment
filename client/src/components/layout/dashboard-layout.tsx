@@ -31,7 +31,7 @@ export function DashboardLayout() {
           </div>
         </SidebarBody>
       </Sidebar>
-      <DashboardMain /> {/* Render the main dashboard content */}
+      <DashboardMain />
     </div>
   );
 }
