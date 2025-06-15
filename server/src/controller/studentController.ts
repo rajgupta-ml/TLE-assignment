@@ -4,15 +4,34 @@ import { DbErrorCodes, DbErrorMessages, GenericMessage } from "../constants/erro
 import { HttpStatusCode } from "../constants/httpStatusCode.constants";
 import type { IStudent } from "../model/student"; // Assuming you have a student model defined
 import type DbService from "../service/dbService";
-import { MongooseError, type SortOrder } from "mongoose";
+import mongoose, { MongooseError, type SortOrder } from "mongoose";
 import { DbError } from "../error/dbError";
+import type { IStudentAnalyticsDocument } from "../model/studentAnalystics";
+import type { StatsService } from "../service/statsService";
+import type { CodeforcesSubmission, IContestData, studentAnalytics } from "../types/analytics";
 
 export class StudentController { 
 
-    constructor (private model : DbService<IStudent>) {
-        this.model = model
+    constructor (private studentModel : DbService<IStudent>, private statModel : DbService<IStudentAnalyticsDocument>, private statsService : StatsService) {
+        this.studentModel = studentModel
+        this.statModel = statModel
+        this.statsService = statsService
     }
 
+
+    private handleError(error: unknown, next: NextFunction) {
+        if (error instanceof DbError) {
+            return next(error);
+        }
+        if (error instanceof MongooseError) {
+            return next(new DbError(DbErrorCodes.UNKNOWN_ERROR, (error.message as DbErrorMessages), HttpStatusCode.INTERNAL_SERVER_ERROR, error.cause));
+        }
+        return next(new ApiError({
+            message: GenericMessage.GENERIC_ERROR,
+            statusCode: Number(HttpStatusCode.INTERNAL_SERVER_ERROR),
+            errorCode: DbErrorCodes.UNKNOWN_ERROR,
+        }));
+    }
     
     getStudents = async (req : Request, res : Response, next : NextFunction) => {
         try {
@@ -22,13 +41,11 @@ export class StudentController {
 
             let sortOptions: Record<string, SortOrder> = {};
             if (sort && typeof sort === 'string') {
-                // Example: sort=name_asc or sort=createdAt_desc
                 const [field, order] = sort.split('_');
                 if (field && order) {
                     sortOptions[field] = (order === 'desc' ? -1 : 1);
                 }
             } else {
-                // Default sort, e.g., by creation date descending
                 sortOptions = { createdAt: -1 };
             }
 
@@ -36,7 +53,7 @@ export class StudentController {
             const queryFilter: Record<string, any> = filter as Record<string, any>;
 
 
-            const paginatedStudents = await this.model.getAll(
+            const paginatedStudents = await this.studentModel.getAll(
                 queryFilter,
                 {}, // projection (empty for all fields)
                 pageNum,
@@ -44,28 +61,81 @@ export class StudentController {
                 sortOptions
             );
 
+            const studentIds = paginatedStudents.data.map((student : IStudent) => {
+                // Type assertion to handle the unknown _id type
+                const id = student._id as mongoose.Types.ObjectId;
+                return id.toString();
+            });
+
+            let analyticsMap = new Map<string, IStudentAnalyticsDocument>();
+            if (studentIds.length > 0) {
+                const studentAnalyticsDocs = await this.statModel.getAll(
+                    { _id: { $in: studentIds } }, 
+                    {}, 
+                    1,
+                    studentIds.length,
+                    {}
+                );
+                studentAnalyticsDocs.data.forEach(doc => {
+                    analyticsMap.set(doc._id.toString(), doc);
+                });
+            }
+
+            const studentsWithUserMetrics = paginatedStudents.data.map(student => {
+                const analyticsDoc = analyticsMap.get((student._id as mongoose.Types.ObjectId).toString());
+                return {
+                    ...student, // Convert Mongoose Document to plain JS object
+                    userMetrics: analyticsDoc ? analyticsDoc.userMetrics : null // Embed only userMetrics
+                };
+            });
+
             res.status(Number(HttpStatusCode.OK)).json({
                 success: true,
-                ...paginatedStudents, // Spread the paginated object directly
+                ...paginatedStudents,
+                data: studentsWithUserMetrics, // Override 'data' with combined array
             });
         } catch (error) {
-            if (error instanceof DbError) {
-                return next(error);
-            }
-            if (error instanceof MongooseError) {
-                return next(new DbError(DbErrorCodes.UNKNOWN_ERROR, (error.message as DbErrorMessages), HttpStatusCode.INTERNAL_SERVER_ERROR, error.cause));
-            }
-            return next(new ApiError({
-                message: GenericMessage.GENERIC_ERROR,
-                statusCode: Number(HttpStatusCode.INTERNAL_SERVER_ERROR),
-            }));
+            // console.log(error);
+            this.handleError(error, next);
         }
     }
 
+    getStudentAnalyticsById = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params; // This ID is expected to be the Student's _id
+
+            if (!id) {
+                return next(new ApiError({
+                    message: "Student ID is required to fetch analytics.",
+                    statusCode: Number(HttpStatusCode.BAD_REQUEST),
+                    errorCode: DbErrorCodes.VALIDATION_ERROR,
+                }));
+            }
+
+            // Fetch the analytics document where its _id is the student's _id
+            const analyticsDoc = await this.statModel.getById(id);
+            // console.log(analyticsDoc);
+            if (!analyticsDoc) {
+                return next(new ApiError({
+                    message: "Student analytics not found for this ID. The student might exist, but no analytics are recorded.",
+                    statusCode: Number(HttpStatusCode.NOT_FOUND),
+                    errorCode: DbErrorCodes.NOT_FOUND,
+                }));
+            }
+
+            res.status(Number(HttpStatusCode.OK)).json({
+                success: true,
+                data: analyticsDoc, // Return the full analytics document
+            });
+
+        } catch (error) {
+            this.handleError(error, next);
+        }
+    }
     
     addStudents = async (req : Request, res : Response, next : NextFunction) => {
         try {
-            const {name, email, phone_number, codeforceHandle} = req.body;
+            const {name, email, phone_number, codeforceHandle, duration} = req.body;
             const missingFields = this.getMissingFields({
                 name,
                 email,
@@ -84,28 +154,46 @@ export class StudentController {
                 );
             }
 
-            const student = await this.model.create({
+            const codeforcesData = await this.statsService.getData(codeforceHandle);
+
+            if (codeforcesData.error) {
+                return next(
+                    new ApiError({
+                        message: `Codeforces API error for handle ${codeforceHandle}: ${codeforcesData.error}`,
+                        statusCode: Number(HttpStatusCode.BAD_REQUEST),
+                    })
+                );
+            }
+
+            if (!codeforcesData || (codeforcesData.contestData?.length === 0 && codeforcesData.problemData?.length === 0)) {
+                return next(
+                    new ApiError({
+                        message: `Could not fetch Codeforces data for handle: ${codeforceHandle}`,
+                        statusCode: Number(HttpStatusCode.BAD_REQUEST),
+                        errorCode: DbErrorCodes.VALIDATION_ERROR,
+                    })
+                );
+           }
+          
+    
+            const student = await this.studentModel.create({
                 name,
                 email,
                 phone_number,
                 codeforceHandle
             });
 
-            res.status(Number(HttpStatusCode.CREATED)).json({ // Use 201 Created for successful resource creation
+            const stats = await this.statsService.getStats(duration, codeforcesData.contestData, codeforcesData.problemData);
+            // console.log(stats);
+           await this.statModel.create({_id: student._id as mongoose.Types.ObjectId, userMetrics : stats.userMetrics, contestMetrics : stats.contenstData, problemMetrics : stats.formatedProblemData})
+            res.status(Number(HttpStatusCode.CREATED)).json({ 
                 success:true,
-                data : student
+                studentData : student,
+                studentStats : stats,
             });
         } catch(error) {
-            if (error instanceof DbError) {
-                return next(error);
-            }
-            if (error instanceof MongooseError){
-                return next(new DbError(DbErrorCodes.UNKNOWN_ERROR, (error.message as DbErrorMessages), HttpStatusCode.INTERNAL_SERVER_ERROR, error.cause));
-            }
-            return next(new ApiError({
-                message : GenericMessage.GENERIC_ERROR,
-                statusCode: Number(HttpStatusCode.INTERNAL_SERVER_ERROR),
-            }));
+            this.handleError(error, next);
+
         }
     }
 
@@ -122,9 +210,10 @@ export class StudentController {
                 }));
             }
 
-            const deletedStudent = await this.model.delete(id);
+            const deletedStudent = await this.studentModel.delete(id);
+            const deleteStats = await this.statModel.delete(id);
 
-            if (!deletedStudent) {
+            if (!deletedStudent || !deleteStats) {
                 return next(new ApiError({
                     message: "Student not found.",
                     statusCode: Number(HttpStatusCode.NOT_FOUND),
@@ -138,24 +227,15 @@ export class StudentController {
                 data: deletedStudent,
             });
         } catch (error) {
-            if (error instanceof DbError) {
-                return next(error);
-            }
-            if (error instanceof MongooseError) {
-                return next(new DbError(DbErrorCodes.UNKNOWN_ERROR, (error.message as DbErrorMessages), HttpStatusCode.INTERNAL_SERVER_ERROR, error.cause));
-            }
-            return next(new ApiError({
-                message: GenericMessage.GENERIC_ERROR,
-                statusCode: Number(HttpStatusCode.INTERNAL_SERVER_ERROR),
-            }));
+            this.handleError(error, next);
         }
     }
 
     
-    updateStudents = async (req : Request, res : Response, next : NextFunction) => {
+    updateStudents = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { id } = req.params;
-            const updateData = req.body;
+            const { id } = req.params; 
+            const updateData = req.body; 
 
             if (!id) {
                 return next(new ApiError({
@@ -173,9 +253,8 @@ export class StudentController {
                 }));
             }
 
-            const updatedStudent = await this.model.update(id, updateData);
-
-            if (!updatedStudent) {
+            const existingStudent = await this.studentModel.getById(id);
+            if (!existingStudent) {
                 return next(new ApiError({
                     message: "Student not found.",
                     statusCode: Number(HttpStatusCode.NOT_FOUND),
@@ -183,22 +262,65 @@ export class StudentController {
                 }));
             }
 
+            const updatedStudent = await this.studentModel.update(id, updateData);
+            if(!updatedStudent){
+                return next(new ApiError({
+                    message : "Student not found",
+                    statusCode : Number(HttpStatusCode.BAD_REQUEST)
+                }));
+            }
+
+            const newCodeforceHandle = updateData.codeforceHandle;
+
+            if(newCodeforceHandle && newCodeforceHandle === existingStudent.codeforceHandle) {
+                res.status(Number(HttpStatusCode.OK)).json({
+                    success: true,
+                    message: "Student updated successfully.",
+                    data: updatedStudent,
+                });
+            }
+
+            const durations = req.body.duration || [7, 30, 365];
+            const durationsArray = Array.isArray(durations) ? durations : [durations];
+
+            try {
+                const codeforcesRawData = await this.statsService.getData(newCodeforceHandle);
+                if (codeforcesRawData.error) {
+                    return next(
+                        new ApiError({
+                            message: `Codeforces API error for handle ${newCodeforceHandle}: ${codeforcesRawData.error}`,
+                            statusCode: Number(HttpStatusCode.BAD_REQUEST),
+                        })
+                    );
+                } else {
+                    const updatedAnalyticsResult = await this.statsService.getStats(
+                        durationsArray,
+                        codeforcesRawData.contestData as IContestData[],
+                        codeforcesRawData.problemData as CodeforcesSubmission[]
+                    );
+
+                    const updatedAnalytics = await this.statModel.update(id, updatedAnalyticsResult);
+
+                    if(!updatedAnalytics) {
+                        await this.statModel.create({ _id: updatedStudent._id as mongoose.Types.ObjectId, ...codeforcesRawData});
+                        console.log(`Student analytics created for ID ${id} after handle change (was missing).`);
+                    }
+                }
+
+            } catch (statsError) {
+                console.error(`Unexpected error during analytics refresh for student ${id}:`, statsError);
+            }
+    
+
             res.status(Number(HttpStatusCode.OK)).json({
                 success: true,
-                message: "Student updated successfully.",
-                data: updatedStudent,
+                message: "Student and Analytics updated successfully.",
+                updateStundent: updatedStudent,
             });
+
         } catch (error) {
-            if (error instanceof DbError) {
-                return next(error);
-            }
-            if (error instanceof MongooseError) {
-                return next(new DbError(DbErrorCodes.UNKNOWN_ERROR, (error.message as DbErrorMessages), HttpStatusCode.INTERNAL_SERVER_ERROR, error.cause));
-            }
-            return next(new ApiError({
-                message: GenericMessage.GENERIC_ERROR,
-                statusCode: Number(HttpStatusCode.INTERNAL_SERVER_ERROR),
-            }));
+            console.log(error);
+            this.handleError(error, next);
         }
     }
 

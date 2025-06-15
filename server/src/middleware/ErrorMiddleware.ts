@@ -20,7 +20,6 @@ export const errorHandler: ErrorRequestHandler = (
     console.error(err);
 
     if (err instanceof DbError || err instanceof ApiError) {
-        console.log(err);
         res.status(Number(err.statusCode)).json({
             success: false,
             message: err.message,

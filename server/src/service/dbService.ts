@@ -77,7 +77,6 @@ class DbService<T extends mongoose.Document> {
         const newDocument = new this.model(data);
         return await newDocument.save();
       } catch (error) {
-        console.log(error);
         this._handleDbError(error, 'creating document',  data );
       }
     }
