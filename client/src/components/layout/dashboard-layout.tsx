@@ -1,4 +1,3 @@
-// src/components/layout/dashboard-layout.tsx
 "use client";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";

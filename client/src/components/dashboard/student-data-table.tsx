@@ -1,6 +1,5 @@
-// src/components/dashboard/students-data-table.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,20 +9,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Mail,
   Phone,
@@ -36,23 +28,67 @@ import {
   Trash2,
   User,
 } from "lucide-react";
-import { studentsData } from "@/data/dashboard-data"; // Import data
 import { getRatingColor } from "@/lib/helpers/dashboard-helpers"; // Import helper
-import { Student } from "@/types"; // Import type
-import AnalyticsLayout from "../analytics/AnayticsLayout";
+import type { Student } from "@/types/index"; // Import type
 import CPAnalyticsModal from "../analytics/AnayticsLayout";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
 
-export function StudentsDataTable() {
+interface StudentsDataTableProps {
+  students: Student[];
+  currentPage: number;
+  totalPage: number;
+  onPageChange: (page: number) => void;
+}
+
+export const StudentsDataTable: React.FC<StudentsDataTableProps> = ({
+  students,
+  currentPage,
+  totalPage,
+  onPageChange,
+}) => {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [open, setOpen] = useState<boolean>(false);
+
+  const getPaginatedPages = () => {
+    const page = [];
+    const maxPagesToShow = 10;
+    const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    const endPage = Math.min(totalPage, startPage + maxPagesToShow - 1);
+
+    if (startPage > 1) {
+      page.push(1);
+      if (startPage > 2) {
+        page.push("...");
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      page.push(i);
+    }
+    if (endPage < totalPage) {
+      if (endPage < totalPage - 1) {
+        page.push("...");
+      }
+      page.push(totalPage);
+    }
+    return page;
+  };
 
   return (
     <>
       <div className="w-full py-6">
         <div className="relative">
           <CPAnalyticsModal isOpen={open} onClose={setOpen}></CPAnalyticsModal>
-          <div className="rounded-xl overflow-hidden shadow-sm bg-white">
+          <div className="rounded-xl overflow-hidden shadow-sm bg-white mb-4">
             <Table>
               <TableHeader>
                 <TableRow className="bg-[oklch(0.9718_0.0147_294.47)] hover:bg-[oklch(0.9718_0.0147_294.47)]">
@@ -98,12 +134,12 @@ export function StudentsDataTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {studentsData.map((student) => (
+                {students.map((student) => (
                   <TableRow
                     onClick={() => setOpen(true)}
-                    key={student.id}
+                    key={student._id}
                     className="relative transition-all duration-200 hover:bg-[var(--acet-blue)] hover:shadow-lg hover:scale-[1.02] hover:z-10 cursor-pointer"
-                    onMouseEnter={() => setHoveredRow(student.id)}
+                    onMouseEnter={() => setHoveredRow(student._id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
                     <TableCell className="font-medium text-gray-900 py-4 px-6">
@@ -113,22 +149,22 @@ export function StudentsDataTable() {
                       {student.email}
                     </TableCell>
                     <TableCell className="text-gray-700 py-4 px-6">
-                      {student.phone}
+                      {student.phone_number}
                     </TableCell>
                     <TableCell className="text-gray-700 py-4 px-6">
                       <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-                        {student.codeforcesHandle}
+                        {student.codeforceHandle}
                       </code>
                     </TableCell>
                     <TableCell
-                      className={`font-semibold py-4 px-6 ${getRatingColor(student.currentRating)}`}
+                      className={`font-semibold py-4 px-6 ${getRatingColor(student.userMetrics.currentRating)}`}
                     >
-                      {student.currentRating}
+                      {student.userMetrics.currentRating}
                     </TableCell>
                     <TableCell
-                      className={`font-semibold py-4 px-6 ${getRatingColor(student.maxRating)}`}
+                      className={`font-semibold py-4 px-6 ${getRatingColor(student.userMetrics.maxRating)}`}
                     >
-                      {student.maxRating}
+                      {student.userMetrics.maxRating}
                     </TableCell>
                     <TableCell className="py-4 px-6">
                       <div className="flex items-center gap-2">
@@ -143,88 +179,6 @@ export function StudentsDataTable() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>
-                                Codeforces Progress - {student.name}
-                              </DialogTitle>
-                            </DialogHeader>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                              <Card>
-                                <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">
-                                    Contests
-                                  </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                  <div className="text-2xl font-bold">
-                                    {student.progress.contests}
-                                  </div>
-                                </CardContent>
-                              </Card>
-                              <Card>
-                                <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">
-                                    Problems Solved
-                                  </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                  <div className="text-2xl font-bold">
-                                    {student.progress.problems}
-                                  </div>
-                                </CardContent>
-                              </Card>
-                              <Card>
-                                <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">
-                                    Current Rank
-                                  </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                  <div className="text-lg font-semibold text-purple-600">
-                                    {student.progress.rank}
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            </div>
-                            <div className="mt-6 space-y-4">
-                              <div className="flex justify-between items-center">
-                                <span className="font-medium">
-                                  Current Rating:
-                                </span>
-                                <span
-                                  className={`font-bold ${getRatingColor(student.currentRating)}`}
-                                >
-                                  {student.currentRating}
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="font-medium">Max Rating:</span>
-                                <span
-                                  className={`font-bold ${getRatingColor(student.maxRating)}`}
-                                >
-                                  {student.maxRating}
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="font-medium">
-                                  Rating Change:
-                                </span>
-                                <span
-                                  className={
-                                    student.currentRating >= student.maxRating
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }
-                                >
-                                  {student.currentRating - student.maxRating > 0
-                                    ? "+"
-                                    : ""}
-                                  {student.currentRating - student.maxRating}
-                                </span>
-                              </div>
-                            </div>
-                          </DialogContent>
                         </Dialog>
 
                         <DropdownMenu>
@@ -255,8 +209,61 @@ export function StudentsDataTable() {
               </TableBody>
             </Table>
           </div>
+
+          {totalPage > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) onPageChange(currentPage - 1);
+                    }}
+                    className={
+                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                    }
+                  />
+                </PaginationItem>
+                {getPaginatedPages().map((page, index) => (
+                  <PaginationItem key={index}>
+                    {page === "..." ? (
+                      <PaginationEllipsis />
+                    ) : (
+                      <PaginationLink
+                        href="#"
+                        isActive={page === currentPage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onPageChange(Number(page));
+                        }}
+                      >
+                        {page}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPage)
+                        onPageChange(currentPage + 1);
+                    }}
+                    className={
+                      currentPage === totalPage
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </div>
       </div>
     </>
   );
-}
+};

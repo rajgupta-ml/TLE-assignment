@@ -5,17 +5,21 @@ export interface ICard {
   title: string;
 }
 
-export interface Student {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  codeforcesHandle: string;
+interface StudentMetrics {
   currentRating: number;
   maxRating: number;
-  progress: {
-    contests: number;
-    problems: number;
-    rank: string;
-  };
+  consistency: number;
+  highestImporovement: number;
+  inActive: boolean;
+  status: string;
+}
+export interface Student {
+  _id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  codeforceHandle: string;
+  createdAt: Date;
+  updateAt: Date;
+  userMetrics: StudentMetrics;
 }

@@ -5,12 +5,13 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch ./src/index.ts",
-    "silent" : "BUN_LOG_LEVEL=silent bun run --watch ./src/index.ts",
+    "silent": "BUN_LOG_LEVEL=silent bun run --watch ./src/index.ts",
     "start": "bun run ./src/index.ts 2>/dev/null"
   },
   "devDependencies": {
     "@types/axios": "^0.14.4",
     "@types/bun": "latest",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/helmet": "^4.0.0",
     "@types/mongoose": "^5.11.97"
@@ -20,6 +21,7 @@
   },
   "dependencies": {
     "axios": "^1.10.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "helmet": "^8.1.0",

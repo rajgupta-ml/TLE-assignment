@@ -5,8 +5,11 @@ import { config } from "./utils/config";
 import studentRouter from "./routes/v1/studentRouter";
 import { errorHandler } from "./middleware/ErrorMiddleware";
 import { connectDB } from "./utils/database";
-
+import cors from 'cors'
 const app = express();
+app.use(cors({
+    origin : "*",
+}))
 app.use(helmet());
 app.use(express.json())
 app.use("/v1/api", studentRouter)

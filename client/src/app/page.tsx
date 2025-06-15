@@ -1,12 +1,16 @@
+"use client";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React, { useState } from "react";
 
-const page = () => {
+export default function Page() {
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
-    <div className="bg-[var(--color-foreground)]">
-      <DashboardLayout />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="bg-[var(--color-foreground)]">
+        <DashboardLayout />
+      </div>
+    </QueryClientProvider>
   );
-};
-
-export default page;
+}
