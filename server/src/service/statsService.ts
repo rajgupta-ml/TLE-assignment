@@ -2,7 +2,9 @@ import axios from "axios";
 import type { Bucket, CodeforcesSubmission, IContestData, ResponseContestData, ResponseProblemData, userMetrics } from "../types/analytics";
 
 
-//Taking too Much time pre-processing things
+//Taking too Much time to fetch the data from codeforce API around 4sec
+//Solution to implement a Async Feedback 
+// For example, Client add an user the frontend add's the user immediatly does not wait for the response. If response errored remove the user else keeep the user
 
 type data = IContestData[] | CodeforcesSubmission[]
 export class StatsService { 
@@ -10,18 +12,25 @@ export class StatsService {
 
     async getData(codeforceHandle : string) : Promise<Record<string, data> | Record<string, any>> {
         try {    
+            const startTime = new Date().getTime();
             const contestData = (await axios.get(`https://codeforces.com/api/user.rating?handle=${codeforceHandle}`)).data.result as IContestData[];
             const problemData = (await axios.get(`https://codeforces.com/api/user.status?handle=${codeforceHandle}`)).data.result as CodeforcesSubmission[];
+            const endTime = new Date().getTime();
+
+            console.log((endTime - startTime) / 1000);
             return {
                 contestData,
                 problemData
             }
         } catch (error) {
+            console.log(error);
             return {
-                success : false,
-                error : "Handle is not valid"
+                success: false,
+                error: "Invalid Codeforces handle or unable to fetch data from Codeforces API"
             }
         }
+        
+
     }
 
     async getStats (duration : number[] = [7,30,90,365], contestData : IContestData[], problemData: CodeforcesSubmission[]) {
@@ -322,7 +331,6 @@ export class StatsService {
         return result;
     }
 
-
     private unixToDate(unixTimeStamp: number) {
         const date = new Date(unixTimeStamp * 1000);
         const day = String(date.getDate()).padStart(2, '0');
@@ -347,11 +355,3 @@ export class StatsService {
     }
     
 }
-
-
-
-const statsService = new StatsService();
-
-statsService.getData("tourist").then((data) => {
-    statsService.getStats(undefined, data.contestData, data.problemData);
-})

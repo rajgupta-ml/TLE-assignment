@@ -136,6 +136,7 @@ export class StudentController {
     addStudents = async (req : Request, res : Response, next : NextFunction) => {
         try {
             const {name, email, phone_number, codeforceHandle, duration} = req.body;
+            console.log(req.body)
             const missingFields = this.getMissingFields({
                 name,
                 email,
