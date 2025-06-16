@@ -1,4 +1,5 @@
 export type ContestEntry = {
+  contenstId: number;
   date: string;
   rating: number;
   contest: string;
@@ -22,7 +23,7 @@ export type ProblemStats = {
   ratingDistribution: RatingDistributionEntry[];
 };
 
-export type ProblemData = Record<string, ProblemStats>;
+export type ProblemData = Record<string, ProblemStats[]>;
 
 export type HeatmapDataPoint = {
   date: string;

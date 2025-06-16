@@ -1,4 +1,5 @@
-import { Student } from "@/types";
+import { Student, StudentMetrics } from "@/types";
+import { ContestData, ProblemData } from "@/types/analytics";
 import axios from "axios";
 
 export interface ApiResponse {
@@ -10,6 +11,14 @@ export interface ApiResponse {
   limit: number;
 }
 
+export interface ApiResponseAnalytics {
+  success: boolean;
+  _id: string;
+  userMetrics: StudentMetrics;
+  problemMetrics: ProblemData;
+  contestMetrics: ContestData;
+}
+
 export type OmiitedStudents = Omit<
   Student,
   "_id" | "createdAt" | "updateAt" | "userMetrics"
@@ -18,6 +27,10 @@ const BASE_URL = `http://localhost:8080/v1/api/students`;
 export const api = {
   getStudent: async (page: number, limit: number): Promise<ApiResponse> => {
     return (await axios.get(`${BASE_URL}?limit=${limit}&page=${page}`)).data;
+  },
+
+  getStudentAnalytics: async (id: string): Promise<ApiResponseAnalytics> => {
+    return (await axios.get(`${BASE_URL}/${id}`)).data.data;
   },
 
   createStudent: async (student: OmiitedStudents) => {

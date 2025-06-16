@@ -2,7 +2,7 @@ import type mongoose from "mongoose";
 import { DbError } from "./../error/dbError";
 import { HttpStatusCode } from "../constants/httpStatusCode.constants";
 import { DbErrorCodes, DbErrorMessages } from "../constants/error.constants";
-import type { SortOrder } from "mongoose";
+import type { PipelineStage, SortOrder } from "mongoose";
 
 class DbService<T extends mongoose.Document> {
     
@@ -164,6 +164,16 @@ class DbService<T extends mongoose.Document> {
         return await this.model.countDocuments(filter);
       } catch (error) {
         this._handleDbError(error, 'counting documents', filter);
+      }
+    }
+
+    async aggregate(pipeline: PipelineStage[]) {
+      try {
+          return await this.model.aggregate(pipeline);
+      } catch (error) {
+          this._handleDbError(error, 'executing aggregation pipeline', {
+              pipeline: JSON.stringify(pipeline),
+          });
       }
     }
   }

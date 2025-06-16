@@ -107,13 +107,13 @@ export const ProblemSolvingTab: FC<ProblemSolvingTabProps> = ({
     {
       icon: TrendingUp,
       label: "Average Rating",
-      value: data.averageRating,
+      value: data.averageRating.toFixed(0),
       iconColor: "text-green-500",
     },
     {
       icon: Activity,
       label: "Avg/Day",
-      value: data.averagePerDay,
+      value: data.averagePerDay.toFixed(2),
       iconColor: "text-purple-500",
     },
   ];

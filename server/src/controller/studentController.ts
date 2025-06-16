@@ -4,11 +4,32 @@ import { DbErrorCodes, DbErrorMessages, GenericMessage } from "../constants/erro
 import { HttpStatusCode } from "../constants/httpStatusCode.constants";
 import type { IStudent } from "../model/student"; // Assuming you have a student model defined
 import type DbService from "../service/dbService";
-import mongoose, { MongooseError, type SortOrder , isValidObjectId } from "mongoose";
+import mongoose, { Mongoose, MongooseError, type PipelineStage, type SortOrder , type ValidateFn, isValidObjectId } from "mongoose";
 import { DbError } from "../error/dbError";
 import type { IStudentAnalyticsDocument } from "../model/studentAnalystics";
 import type { StatsService } from "../service/statsService";
 import type { CodeforcesSubmission, IContestData, studentAnalytics } from "../types/analytics";
+
+
+interface IUserMetricsResult {
+    userId : mongoose.Types.ObjectId;
+    number : number;
+}
+
+interface IAggregatedResult {
+    highestRatingUser : IUserMetricsResult[]
+    bestImprovementUser : IUserMetricsResult[]
+    highestConsistencyUser : IUserMetricsResult[]
+
+}
+
+
+interface IHighestAchiever {
+    key : string;
+    userName : string;
+    _id : string;
+    number : number
+}
 
 export class StudentController { 
 
@@ -34,6 +55,7 @@ export class StudentController {
     }
     
     getStudents = async (req : Request, res : Response, next : NextFunction) => {
+        console.log("get students")
         try {
             const { page, limit, sort, ...filter } = req.query; // Extract page, limit, sort, and remaining as filter
             const pageNum = parseInt(page as string) || 1;
@@ -101,6 +123,7 @@ export class StudentController {
     }
 
     getStudentAnalyticsById = async (req: Request, res: Response, next: NextFunction) => {
+        console.log("getStudentAna")
         
         try {
             const { id } = req.params; // This ID is expected to be the Student's _id
@@ -135,6 +158,97 @@ export class StudentController {
             });
 
         } catch (error) {
+            this.handleError(error, next);
+        }
+    }
+
+    
+    getHighestAchievers = async (req : Request, res : Response, next : NextFunction) => {
+
+    
+        try{
+            const pipeline : PipelineStage[] = [
+                {
+                    $facet: {
+                      "highestRatingUser": [
+                        { $sort: { "userMetrics.currentRating": -1 } },
+                        { $limit: 1 },
+                        { 
+                          $project: { 
+                            _id: 0, 
+                            userId: "$_id", 
+                            number: "$userMetrics.currentRating" 
+                          } 
+                        }
+                      ],
+                      "bestImprovementUser": [
+                        { $sort: { "userMetrics.highestImporovement": -1 } },
+                        { $limit: 1 },
+                        { 
+                          $project: { 
+                            _id: 0, 
+                            userId: "$_id", 
+                            number: "$userMetrics.highestImporovement" 
+                          } 
+                        }
+                      ],
+                      "highestConsistencyUser": [
+                        { $sort: { "userMetrics.consitency": -1 } },
+                        { $limit: 1 },
+                        { 
+                          $project: { 
+                            _id: 0, 
+                            userId: "$_id", 
+                            number: "$userMetrics.consitency" 
+                          } 
+                        }
+                      ]
+                    }
+                  }
+            ]
+            const highestAchievers = await this.statModel.aggregate(pipeline) as IAggregatedResult[];
+    
+            if(highestAchievers.length === 0){
+                return next(new ApiError({message : "No Data Found", statusCode : Number(HttpStatusCode.NOT_FOUND)}))
+            }
+
+            const highestAchieversWithUserData : IHighestAchiever[] = [];
+
+            const result = highestAchievers[0];
+            if(!result){
+                return next(new ApiError({message : "No Data Found", statusCode : Number(HttpStatusCode.NOT_FOUND)}))
+            }
+
+
+            for(const [key, value] of Object.entries(result)){
+
+
+                if(Array.isArray(value) && value.length > 0) {
+                    const achieversData = value[0];
+                    const userId = achieversData.userId;
+                    const metricsNumber = achieversData.number;
+
+                    if(!userId) {
+                        return next(new ApiError({message : "User's not found", statusCode : Number(HttpStatusCode.NOT_FOUND)})); 
+                    }
+                    const result = await this.studentModel.getById(userId) as IStudent;
+                    const temp :IHighestAchiever = {
+                        key,
+                        userName : result.name,
+                        _id : result._id as string ,
+                        number : metricsNumber
+                    }
+                    highestAchieversWithUserData.push(temp); 
+                }
+            }
+                    
+
+            res.status(Number(HttpStatusCode.OK)).json({
+                success: true,
+                highestAchieversWithUserData
+            })
+        }catch(error){
+            console.error(error);
             this.handleError(error, next);
         }
     }
@@ -240,6 +354,7 @@ export class StudentController {
 
     
     updateStudents = async (req: Request, res: Response, next: NextFunction) => {
+        console.log("updateStudent")
         try {
             const { id } = req.params; 
             const updateData = req.body; 

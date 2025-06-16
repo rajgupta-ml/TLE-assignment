@@ -21,18 +21,22 @@ const studentController = new StudentController(student, stats, StatService);
 studentRouter.get("/students", studentController.getStudents);
 
 
+studentRouter.get("/students/highest-achievers", studentController.getHighestAchievers)
 /**
      * @route GET /api/students/123
      * @description Get  students analytics data by id
      * @access Public
 */
+
 studentRouter.get("/students/:id", studentController.getStudentAnalyticsById);
 
 /**
-     * @route POST /api/students
+     * @route POST /api/students/highest-achievers
      * @description Add a new student
      * @access Public
-     */
+*/
+
+
 
 studentRouter.post("/students", studentController.addStudents);
 

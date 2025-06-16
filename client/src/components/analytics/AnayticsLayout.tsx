@@ -13,15 +13,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { TooltipInfo, ContestData, ProblemData } from "@/types/analytics";
+import type {
+  TooltipInfo,
+  ContestData,
+  ProblemData,
+  ContestEntry,
+} from "@/types/analytics";
 
 import { ContestHistoryTab } from "./ContestHistoryTab";
 import { ProblemSolvingTab } from "./ProblemSolvingTab";
 import { contestData, problemData } from "@/data/analytics-data";
+import { useGetStudentAnalytics } from "@/hooks/useStudents";
 
 interface CPAnalyticsModalProps {
   isOpen: boolean;
   toggle: () => void;
+  selectedStudentId: string;
 }
 
 const modalVariants: Variants = {
@@ -91,13 +98,20 @@ const HeatmapTooltip: FC<{ tooltip: TooltipInfo }> = ({ tooltip }) => (
 export default function CPAnalyticsModal({
   isOpen,
   toggle,
+  selectedStudentId,
 }: CPAnalyticsModalProps): JSX.Element | null {
+  const {
+    data: studentAnalytics,
+    isLoading,
+    error,
+  } = useGetStudentAnalytics(selectedStudentId);
+
   const [contestFilter, setContestFilter] = useState<keyof ContestData>("90");
   const [problemFilter, setProblemFilter] = useState<keyof ProblemData>("90");
   const [tooltip, setTooltip] = useState<TooltipInfo>(null);
 
-  const currentContestData = contestData[contestFilter];
-  const currentProblemData = problemData[problemFilter];
+  const currentContestData = studentAnalytics?.contestMetrics[contestFilter];
+  const currentProblemData = studentAnalytics?.problemMetrics[problemFilter];
 
   return (
     <AnimatePresence>
@@ -173,13 +187,19 @@ export default function CPAnalyticsModal({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="7">Last 7 days</SelectItem>
+
                         <SelectItem value="30">Last 30 days</SelectItem>
                         <SelectItem value="90">Last 90 days</SelectItem>
                         <SelectItem value="365">Last 365 days</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <ContestHistoryTab data={currentContestData} />
+                  {currentContestData ? (
+                    <ContestHistoryTab data={currentContestData} />
+                  ) : (
+                    <div>No Contest Data available</div>
+                  )}
                 </TabsContent>
                 <TabsContent value="problem-solving" className="mt-6">
                   <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -199,13 +219,18 @@ export default function CPAnalyticsModal({
                         <SelectItem value="7">Last 7 days</SelectItem>
                         <SelectItem value="30">Last 30 days</SelectItem>
                         <SelectItem value="90">Last 90 days</SelectItem>
+                        <SelectItem value="365">Last 365 days</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <ProblemSolvingTab
-                    data={currentProblemData}
-                    setTooltip={setTooltip}
-                  />
+                  {currentProblemData && currentProblemData[0] ? (
+                    <ProblemSolvingTab
+                      data={currentProblemData[0]}
+                      setTooltip={setTooltip}
+                    />
+                  ) : (
+                    <div>No Problem Data available</div>
+                  )}
                 </TabsContent>
               </Tabs>
             </main>

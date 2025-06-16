@@ -40,10 +40,13 @@ export const StudentsDataTable: React.FC<StudentsDataTableProps> = ({
       )}
       <div className="w-full py-6">
         <div className="relative">
-          <CPAnalyticsModal
-            isOpen={openAnalyticsModal}
-            toggle={toggleAnalyticsModal}
-          ></CPAnalyticsModal>
+          {selectedStudent && (
+            <CPAnalyticsModal
+              selectedStudentId={selectedStudent._id}
+              isOpen={openAnalyticsModal}
+              toggle={toggleAnalyticsModal}
+            ></CPAnalyticsModal>
+          )}
           <div className="rounded-xl overflow-hidden shadow-sm bg-white mb-4">
             <Table>
               <StudentTableHeaders></StudentTableHeaders>
