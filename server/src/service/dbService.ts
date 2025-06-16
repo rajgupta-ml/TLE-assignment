@@ -81,7 +81,7 @@ class DbService<T extends mongoose.Document> {
       }
     }
   
-    async getById(id : string, projection : Record<string, string> = {}) {
+    async getById(id : mongoose.Types.ObjectId, projection : Record<string, string> = {}) {
       try {
         return await this.model.findById(id, projection).lean();
       } catch (error) {

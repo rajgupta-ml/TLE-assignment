@@ -4,7 +4,7 @@ import { DbErrorCodes, DbErrorMessages, GenericMessage } from "../constants/erro
 import { HttpStatusCode } from "../constants/httpStatusCode.constants";
 import type { IStudent } from "../model/student"; // Assuming you have a student model defined
 import type DbService from "../service/dbService";
-import mongoose, { MongooseError, type SortOrder } from "mongoose";
+import mongoose, { MongooseError, type SortOrder , isValidObjectId } from "mongoose";
 import { DbError } from "../error/dbError";
 import type { IStudentAnalyticsDocument } from "../model/studentAnalystics";
 import type { StatsService } from "../service/statsService";
@@ -101,6 +101,7 @@ export class StudentController {
     }
 
     getStudentAnalyticsById = async (req: Request, res: Response, next: NextFunction) => {
+        
         try {
             const { id } = req.params; // This ID is expected to be the Student's _id
 
@@ -111,10 +112,15 @@ export class StudentController {
                     errorCode: DbErrorCodes.VALIDATION_ERROR,
                 }));
             }
-
-            // Fetch the analytics document where its _id is the student's _id
-            const analyticsDoc = await this.statModel.getById(id);
-            // console.log(analyticsDoc);
+            if(!isValidObjectId(id)){
+                return next(new ApiError({
+                    message: "Student ID is not valid to fetch analytics.",
+                    statusCode: Number(HttpStatusCode.BAD_REQUEST),
+                    errorCode: DbErrorCodes.VALIDATION_ERROR,
+                }));
+            }
+            
+            const analyticsDoc = await this.statModel.getById((new mongoose.Types.ObjectId(id)));
             if (!analyticsDoc) {
                 return next(new ApiError({
                     message: "Student analytics not found for this ID. The student might exist, but no analytics are recorded.",
@@ -254,7 +260,15 @@ export class StudentController {
                 }));
             }
 
-            const existingStudent = await this.studentModel.getById(id);
+            if(!isValidObjectId(id)){
+                return next(new ApiError({
+                    message: "Student ID is not valid to fetch analytics.",
+                    statusCode: Number(HttpStatusCode.BAD_REQUEST),
+                    errorCode: DbErrorCodes.VALIDATION_ERROR,
+                }));
+            }
+
+            const existingStudent = await this.studentModel.getById(new mongoose.Types.ObjectId(id));
             if (!existingStudent) {
                 return next(new ApiError({
                     message: "Student not found.",
