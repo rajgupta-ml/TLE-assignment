@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,24 +8,26 @@ import { Label } from "@/components/ui/label";
 import { User, Mail, Phone, Code } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { OmiitedStudents } from "@/api/studentApi";
+import { Student } from "@/types";
 
-interface AddStudentPopupProps {
-  onAddStudent: (student: OmiitedStudents) => void;
-
+interface EditStudentPopover {
+  student: Student;
   open: boolean;
   setOpen: (arg0: boolean) => void;
+  handleUpdate: (id: string, student: Partial<Student>) => void;
 }
 
-const AddStudentPopup = ({
-  onAddStudent,
+const EditStudentPopup = ({
+  student,
   open,
   setOpen,
-}: AddStudentPopupProps) => {
+  handleUpdate,
+}: EditStudentPopover) => {
   const [formData, setFormData] = useState<OmiitedStudents>({
-    name: "",
-    email: "",
-    phone_number: "",
-    codeforceHandle: "",
+    name: student.name,
+    email: student.email,
+    phone_number: student.phone_number,
+    codeforceHandle: student.codeforceHandle,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -65,13 +65,14 @@ const AddStudentPopup = ({
     e.preventDefault();
 
     if (validateForm()) {
-      onAddStudent(formData);
       setFormData({
         name: "",
         email: "",
         phone_number: "",
         codeforceHandle: "",
       });
+
+      handleUpdate(student._id, formData);
       setErrors({});
       setOpen(false);
     }
@@ -130,10 +131,10 @@ const AddStudentPopup = ({
             <div className="bg-[var(--card)] border-[var(--border)] rounded-lg p-6 shadow-xl">
               <div className="mb-6">
                 <h2 className="text-[var(--card-foreground)] text-3xl font-bold mb-2">
-                  New Student
+                  Edit Student
                 </h2>
                 <p className="text-[var(--muted-foreground)]">
-                  Enter the student's information to add them to the system.
+                  Enter the student's information to edit them to the system.
                 </p>
               </div>
 
@@ -331,7 +332,7 @@ const AddStudentPopup = ({
                     type="submit"
                     className="bg-[var(--acet-blue)]/50 hover:bg-[var(--acet-blue)] cursor-pointer text-[var(--text-acet-blue)]"
                   >
-                    Add Student
+                    Edit Student
                   </Button>
                 </motion.div>
               </form>
@@ -343,4 +344,4 @@ const AddStudentPopup = ({
   );
 };
 
-export default AddStudentPopup;
+export default EditStudentPopup;

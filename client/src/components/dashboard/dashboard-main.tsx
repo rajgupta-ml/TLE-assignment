@@ -1,46 +1,36 @@
 // src/components/dashboard/dashboard-main.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Calendar1Icon, Search, Plus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardOverviewCards } from "./dashboard-overview-cards";
 import { StudentsDataTable } from "./student-data-table";
 import { downloadCSV } from "@/lib/helpers/dashboard-helpers";
 import { studentsData } from "@/data/dashboard-data";
-import { Student } from "@/types";
 import AddStudentPopup from "./add-student-popup";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { api, ApiResponse } from "@/api/studentApi";
+import Loading from "../common/Loading";
+import Error from "../common/Error";
+import { Student } from "@/types";
 
-interface ApiResponse {
-  success: boolean;
-  data: Student[];
-  total: number;
-  page: number;
-  pages: number;
-  limit: number;
-}
+const dateStr = new Date().toLocaleDateString("en-US", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
 
-const fetchStudentDetails = async (
-  limit: number,
-  page: number,
-): Promise<ApiResponse> => {
-  return await (
-    await axios.get(
-      `http://localhost:8080/v1/api/students?limit=${limit}&page=${page}`,
-    )
-  ).data;
-};
 export const DashboardMain = () => {
-  const dateStr = new Date().toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
   const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const queryClient = useQueryClient();
   const {
     data: response,
     isLoading,
@@ -48,8 +38,47 @@ export const DashboardMain = () => {
     refetch,
   } = useQuery<ApiResponse>({
     queryKey: ["studentsData", currentPage, itemsPerPage],
-    queryFn: () => fetchStudentDetails(itemsPerPage, currentPage),
+    queryFn: () => api.getStudent(currentPage, itemsPerPage),
     placeholderData: keepPreviousData,
+  });
+
+  const createStudentMutation = useMutation({
+    mutationFn: api.createStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["studentsData", currentPage, itemsPerPage],
+      });
+      setOpen(false);
+    },
+    onError: () => {
+      console.error("Error creating student:", error);
+    },
+  });
+
+  const updateStudentMutation = useMutation({
+    mutationFn: api.updateStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["studentsData", currentPage, itemsPerPage],
+      });
+      setOpen(false);
+    },
+    onError: () => {
+      console.error("Error updating student:", error);
+    },
+  });
+
+  const deleteStudentMutation = useMutation({
+    mutationFn: api.deleteStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["studentsData", currentPage, itemsPerPage],
+      });
+      setOpen(false);
+    },
+    onError: () => {
+      console.error("Error deleting student:", error);
+    },
   });
 
   const students = response?.data || [];
@@ -64,26 +93,22 @@ export const DashboardMain = () => {
   const handleAddStudent = (student: {
     name: string;
     email: string;
-    phone: string;
-    codeforcesHandle: string;
-  }) => {};
+    phone_number: string;
+    codeforceHandle: string;
+  }) => {
+    createStudentMutation.mutate(student);
+  };
 
-  if (isLoading && !students.length && !error) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  const handleUpdateStudent = (id: string, student: Partial<Student>) => {
+    updateStudentMutation.mutate({ id, student });
+  };
 
-  // Display error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-red-500">Error: {error.message}</div>
-      </div>
-    );
-  }
+  const handleDeleteStudent = (id: string) => {
+    deleteStudentMutation.mutate(id);
+  };
+
+  <Loading isLoading={isLoading} error={error}></Loading>;
+  <Error error={error}></Error>;
 
   if (students) {
     return (
@@ -134,6 +159,8 @@ export const DashboardMain = () => {
               students={students}
               currentPage={currentPage}
               onPageChange={handlePageChange}
+              onUpdateStudent={handleUpdateStudent}
+              onDeleteStudent={handleDeleteStudent}
               totalPage={totalPages}
             />
           </div>

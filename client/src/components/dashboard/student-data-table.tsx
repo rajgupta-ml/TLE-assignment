@@ -40,10 +40,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
+import EditStudentPopup from "./edit-student-popup";
+import { OmiitedStudents } from "@/api/studentApi";
 
 interface StudentsDataTableProps {
   students: Student[];
   currentPage: number;
+  onUpdateStudent: (id: string, student: Partial<Student>) => void;
+  onDeleteStudent: (id: string) => void;
   totalPage: number;
   onPageChange: (page: number) => void;
 }
@@ -51,13 +55,16 @@ interface StudentsDataTableProps {
 export const StudentsDataTable: React.FC<StudentsDataTableProps> = ({
   students,
   currentPage,
+  onDeleteStudent,
+  onUpdateStudent,
   totalPage,
   onPageChange,
 }) => {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [open, setOpen] = useState<boolean>(false);
-
+  const [openAdd, setOpenAdd] = useState<boolean>(false);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const [studentDetails, setStudentDetails] = useState<Student>();
   const getPaginatedPages = () => {
     const page = [];
     const maxPagesToShow = 10;
@@ -85,9 +92,20 @@ export const StudentsDataTable: React.FC<StudentsDataTableProps> = ({
 
   return (
     <>
+      {openEdit && studentDetails !== undefined && (
+        <EditStudentPopup
+          student={studentDetails}
+          setOpen={setOpenEdit}
+          open={openEdit}
+          handleUpdate={onUpdateStudent}
+        ></EditStudentPopup>
+      )}
       <div className="w-full py-6">
         <div className="relative">
-          <CPAnalyticsModal isOpen={open} onClose={setOpen}></CPAnalyticsModal>
+          <CPAnalyticsModal
+            isOpen={openAdd}
+            onClose={setOpenAdd}
+          ></CPAnalyticsModal>
           <div className="rounded-xl overflow-hidden shadow-sm bg-white mb-4">
             <Table>
               <TableHeader>
@@ -136,7 +154,7 @@ export const StudentsDataTable: React.FC<StudentsDataTableProps> = ({
               <TableBody>
                 {students.map((student) => (
                   <TableRow
-                    onClick={() => setOpen(true)}
+                    // onClick={() => setOpenAdd(true)}
                     key={student._id}
                     className="relative transition-all duration-200 hover:bg-[var(--acet-blue)] hover:shadow-lg hover:scale-[1.02] hover:z-10 cursor-pointer"
                     onMouseEnter={() => setHoveredRow(student._id)}
@@ -192,11 +210,20 @@ export const StudentsDataTable: React.FC<StudentsDataTableProps> = ({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="flex items-center gap-2">
+                            <DropdownMenuItem
+                              className="flex items-center gap-2"
+                              onClick={() => {
+                                setStudentDetails(student);
+                                setOpenEdit(true);
+                              }}
+                            >
                               <Edit className="h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="flex items-center gap-2 text-red-600">
+                            <DropdownMenuItem
+                              onClick={() => onDeleteStudent(student._id)}
+                              className="flex items-center gap-2 text-red-600"
+                            >
                               <Trash2 className="h-4 w-4" />
                               Delete
                             </DropdownMenuItem>

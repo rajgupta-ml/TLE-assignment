@@ -237,7 +237,7 @@ export class StudentController {
         try {
             const { id } = req.params; 
             const updateData = req.body; 
-
+            
             if (!id) {
                 return next(new ApiError({
                     message: "Student ID is required for update.",
