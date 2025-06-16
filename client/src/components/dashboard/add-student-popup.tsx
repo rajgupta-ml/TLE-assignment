@@ -15,7 +15,7 @@ interface AddStudentPopupProps {
   onAddStudent: (student: OmiitedStudents) => void;
 
   open: boolean;
-  setOpen: (arg0: boolean) => void;
+  setOpen: () => void;
 }
 
 const AddStudentPopup = ({
@@ -73,7 +73,7 @@ const AddStudentPopup = ({
         codeforceHandle: "",
       });
       setErrors({});
-      setOpen(false);
+      setOpen();
     }
   };
 
@@ -102,7 +102,7 @@ const AddStudentPopup = ({
             duration: 0.3,
             ease: "easeInOut",
           }}
-          onClick={() => setOpen(false)}
+          onClick={setOpen}
         >
           <motion.div
             className="sm:max-w-[500px] w-full max-w-lg mx-4"
@@ -322,7 +322,7 @@ const AddStudentPopup = ({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setOpen(false)}
+                    onClick={setOpen}
                     className="border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--accent)] cursor-pointer"
                   >
                     Cancel
