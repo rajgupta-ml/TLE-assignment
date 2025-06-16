@@ -1,4 +1,3 @@
-// components/ui/grid-pattern.tsx
 import React from "react";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +29,6 @@ export function GridPattern({
         )}
       ></div>
       {children && <div className="relative z-[1]">{children}</div>}
-      assas
     </>
   );
 }

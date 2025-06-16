@@ -1,8 +1,8 @@
-export interface ICard {
-  color: string;
-  name: string;
-  number: string;
-  title: string;
+interface IAchieverData {
+  key: "highestRatingUser" | "bestImprovementUser" | "highestConsistencyUser";
+  userName: string;
+  _id: string;
+  number: number;
 }
 
 interface StudentMetrics {

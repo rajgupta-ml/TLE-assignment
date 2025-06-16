@@ -13,16 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type {
-  TooltipInfo,
-  ContestData,
-  ProblemData,
-  ContestEntry,
-} from "@/types/analytics";
+import type { TooltipInfo, ContestData, ProblemData } from "@/types/analytics";
 
 import { ContestHistoryTab } from "./ContestHistoryTab";
 import { ProblemSolvingTab } from "./ProblemSolvingTab";
-import { contestData, problemData } from "@/data/analytics-data";
 import { useGetStudentAnalytics } from "@/hooks/useStudents";
 
 interface CPAnalyticsModalProps {
@@ -223,8 +217,11 @@ export default function CPAnalyticsModal({
                       </SelectContent>
                     </Select>
                   </div>
-                  {currentProblemData && currentProblemData[0] ? (
+                  {currentContestData &&
+                  currentProblemData &&
+                  currentProblemData[0] ? (
                     <ProblemSolvingTab
+                      contestData={currentContestData}
                       data={currentProblemData[0]}
                       setTooltip={setTooltip}
                     />

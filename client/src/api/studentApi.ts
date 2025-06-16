@@ -1,4 +1,4 @@
-import { Student, StudentMetrics } from "@/types";
+import { IAchieverData, Student, StudentMetrics } from "@/types";
 import { ContestData, ProblemData } from "@/types/analytics";
 import axios from "axios";
 
@@ -19,6 +19,11 @@ export interface ApiResponseAnalytics {
   contestMetrics: ContestData;
 }
 
+export interface ApiResponseHighestAchivers {
+  success: boolean;
+  highestAchieversWithUserData: IAchieverData[];
+}
+
 export type OmiitedStudents = Omit<
   Student,
   "_id" | "createdAt" | "updateAt" | "userMetrics"
@@ -31,6 +36,10 @@ export const api = {
 
   getStudentAnalytics: async (id: string): Promise<ApiResponseAnalytics> => {
     return (await axios.get(`${BASE_URL}/${id}`)).data.data;
+  },
+
+  getHighestAchiever: async (): Promise<ApiResponseHighestAchivers> => {
+    return (await axios.get(`${BASE_URL}/highest-achievers`)).data;
   },
 
   createStudent: async (student: OmiitedStudents) => {

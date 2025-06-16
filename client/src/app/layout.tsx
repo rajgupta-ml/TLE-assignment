@@ -1,20 +1,24 @@
-import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import ClientRootLayout from "./ClientRootLayout";
 
-export const metadata: Metadata = {
-  title: "Student Progress Management App",
-  description:
-    "This is a Student Progress management app where you can track students journey in competative programming",
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Your App",
+  description: "Your app description",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ClientRootLayout>{children}</ClientRootLayout>
+      </body>
     </html>
   );
 }

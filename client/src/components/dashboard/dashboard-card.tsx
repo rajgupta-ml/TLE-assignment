@@ -1,8 +1,17 @@
 import React from "react";
 import { GridPattern } from "@/components/ui/grid-pattern";
-import { ICard } from "@/types"; // Import type
 
-export const DashboardCard = ({ color, name, title, number }: ICard) => {
+export const DashboardCard = ({
+  color,
+  name,
+  title,
+  number,
+}: {
+  color: string;
+  name: string;
+  title: string;
+  number: string | number;
+}) => {
   const bgColorClass =
     {
       "#EDF6FF": "bg-[var(--acet-blue)]",

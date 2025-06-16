@@ -1,4 +1,3 @@
-// src/components/analytics/ProblemSolvingTab.tsx
 import React, { useState, useMemo, FC } from "react";
 import {
   BarChart,
@@ -16,6 +15,7 @@ import type {
   ProblemStats,
   HeatmapDataPoint,
   TooltipInfo,
+  ContestEntry,
 } from "@/types/analytics";
 import {
   generateHeatmapData,
@@ -25,14 +25,15 @@ import { AnimatedCard } from "./AnimatedComponetns";
 
 // Child Component for the Heatmap
 const Heatmap: FC<{
+  contestData: ContestEntry[];
   onMouseOver: (
     e: React.MouseEvent<HTMLDivElement>,
     day: HeatmapDataPoint,
   ) => void;
   onMouseLeave: () => void;
-}> = ({ onMouseOver, onMouseLeave }) => {
+}> = ({ onMouseOver, onMouseLeave, contestData }) => {
   const heatmapGridCells = useMemo(() => {
-    const data = generateHeatmapData(365);
+    const data = generateHeatmapData(365, contestData);
     const firstDate = new Date(data[0].date);
     const dayOfWeek = firstDate.getDay();
     const cells: (HeatmapDataPoint | null)[] = Array.from(
@@ -82,11 +83,13 @@ const Heatmap: FC<{
 };
 
 interface ProblemSolvingTabProps {
+  contestData: ContestEntry[];
   data: ProblemStats;
   setTooltip: React.Dispatch<React.SetStateAction<TooltipInfo>>;
 }
 
 export const ProblemSolvingTab: FC<ProblemSolvingTabProps> = ({
+  contestData,
   data,
   setTooltip,
 }) => {
@@ -182,6 +185,7 @@ export const ProblemSolvingTab: FC<ProblemSolvingTabProps> = ({
             </CardHeader>
             <CardContent>
               <Heatmap
+                contestData={contestData}
                 onMouseOver={handleMouseOver}
                 onMouseLeave={handleMouseLeave}
               />

@@ -1,8 +1,10 @@
-import { contestData } from "@/data/analytics-data";
-import { HeatmapDataPoint } from "@/types/analytics";
+import { ContestEntry, HeatmapDataPoint } from "@/types/analytics";
 import { Variants } from "motion";
 
-export const generateHeatmapData = (days: number): HeatmapDataPoint[] => {
+export const generateHeatmapData = (
+  days: number,
+  contestData: ContestEntry[],
+): HeatmapDataPoint[] => {
   const data: HeatmapDataPoint[] = [];
   const today = new Date();
   const allContests = Object.values(contestData).flat();
