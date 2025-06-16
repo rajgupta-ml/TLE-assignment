@@ -8,19 +8,18 @@ import Error from "../common/Error";
 import { useGetStudent } from "@/hooks/useStudents";
 import { useStudentManagement } from "@/hooks/useStudentManagement";
 import { DashboardHeader } from "./dashboardHeader";
+import usePagination from "@/hooks/usePagination";
 
 export const DashboardMain = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
+  const pagination = usePagination();
+  const { currentPage, itemsPerPage, totalPages } = pagination;
   const {
     data: student,
     isLoading,
     error,
   } = useGetStudent(currentPage, itemsPerPage);
   const students = student?.data || [];
-  const totalPages = student?.pages || 0;
-
+  totalPages.current = student?.total || 0;
   const {
     isAddModalOpen,
     handleSetModal,
@@ -28,12 +27,6 @@ export const DashboardMain = () => {
     handleUpdateStudent,
     handleDeleteStudent,
   } = useStudentManagement(currentPage, itemsPerPage);
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
 
   <Loading isLoading={isLoading} error={error}></Loading>;
   <Error error={error}></Error>;
@@ -47,11 +40,9 @@ export const DashboardMain = () => {
           <div className="flex flex-1 gap-2">
             <StudentsDataTable
               students={students}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
+              pagination={pagination}
               onUpdateStudent={handleUpdateStudent}
               onDeleteStudent={handleDeleteStudent}
-              totalPage={totalPages}
             />
           </div>
         </div>
@@ -60,7 +51,6 @@ export const DashboardMain = () => {
           open={isAddModalOpen}
           setOpen={handleSetModal}
         />
-        ;
       </div>
     );
   }

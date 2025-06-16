@@ -21,7 +21,7 @@ import { contestData, problemData } from "@/data/analytics-data";
 
 interface CPAnalyticsModalProps {
   isOpen: boolean;
-  onClose: (arg: boolean) => void;
+  toggle: () => void;
 }
 
 const modalVariants: Variants = {
@@ -90,7 +90,7 @@ const HeatmapTooltip: FC<{ tooltip: TooltipInfo }> = ({ tooltip }) => (
 
 export default function CPAnalyticsModal({
   isOpen,
-  onClose,
+  toggle,
 }: CPAnalyticsModalProps): JSX.Element | null {
   const [contestFilter, setContestFilter] = useState<keyof ContestData>("90");
   const [problemFilter, setProblemFilter] = useState<keyof ProblemData>("90");
@@ -110,7 +110,7 @@ export default function CPAnalyticsModal({
         >
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => onClose(false)}
+            onClick={toggle}
             aria-hidden="true"
           />
           <HeatmapTooltip tooltip={tooltip} />
@@ -135,7 +135,7 @@ export default function CPAnalyticsModal({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onClose(false)}
+                onClick={toggle}
                 className="text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors rounded-full"
                 aria-label="Close modal"
               >

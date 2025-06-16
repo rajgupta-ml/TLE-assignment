@@ -10,10 +10,10 @@ import { Label } from "@/components/ui/label";
 import { User, Mail, Phone, Code } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { OmiitedStudents } from "@/api/studentApi";
+import usePagination from "@/hooks/usePagination";
 
 interface AddStudentPopupProps {
   onAddStudent: (student: OmiitedStudents) => void;
-
   open: boolean;
   setOpen: () => void;
 }
