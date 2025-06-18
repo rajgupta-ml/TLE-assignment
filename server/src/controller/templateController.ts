@@ -44,7 +44,7 @@ export class EmailTemplateController {
     createEmailTemplate = async (req: Request, res: Response, next: NextFunction) => {
         const templateData: Omit<IEmailTemplateDocument, 'createdAt' | 'updatedAt'> = req.body;
 
-        if (!templateData.subject || !templateData.body || !templateData.description) {
+        if (!templateData.subject || !templateData.body || !templateData.name) {
             return next(new ApiError({
                 message: "Missing required fields: studentId, subject, email, and description are required.",
                 statusCode: Number(HttpStatusCode.BAD_REQUEST)

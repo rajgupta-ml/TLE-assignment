@@ -15,9 +15,9 @@ import { Badge } from "@/components/ui/badge";
 
 interface CronJobListProps {
   cronJobs: CronJob[];
-  toggleCronJob: (id: string) => void;
+  toggleCronJob: (id: string, isActive: boolean) => void;
   deleteCronJob: (id: string) => void;
-  getTemplateName: (id: string) => string;
+  getTemplateName: (id: string) => string | undefined;
   formatNextRun: (dateString: Date | undefined) => string;
 }
 
@@ -52,7 +52,7 @@ const CronJobList: React.FC<CronJobListProps> = ({
           ) : (
             <div className="space-y-4">
               {cronJobs.map((job) => (
-                <Card key={job.id} className="border-l-4 border-l-primary/20">
+                <Card key={job._id} className="border-l-4 border-l-primary/20">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-2">
@@ -97,7 +97,9 @@ const CronJobList: React.FC<CronJobListProps> = ({
                         <div className="flex items-center space-x-2">
                           <Switch
                             checked={job.isActive}
-                            onCheckedChange={() => toggleCronJob(job.id)}
+                            onClick={() =>
+                              toggleCronJob(job._id, !!job.isActive)
+                            }
                           />
                           <Label className="text-sm">
                             {job.isActive ? "Active" : "Inactive"}
@@ -106,7 +108,7 @@ const CronJobList: React.FC<CronJobListProps> = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteCronJob(job.id)}
+                          onClick={() => deleteCronJob(job._id)}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />

@@ -2,10 +2,9 @@ import mongoose from "mongoose";
 import { Schema, Document } from "mongoose";
 
 export interface IEmailTemplate {
+  name: string;
   subject: string;
-  email: string;
   body : string;
-  description: string;
 }
 
 export interface IEmailTemplateDocument extends IEmailTemplate, Document {
@@ -14,6 +13,11 @@ export interface IEmailTemplateDocument extends IEmailTemplate, Document {
 }
 
 const EmailTemplateSchema = new Schema<IEmailTemplateDocument>({
+    name: {
+      type: String,
+      required: false,
+      trim: true,
+    },
   subject: {
     type: String,
     required: true,
@@ -23,11 +27,6 @@ const EmailTemplateSchema = new Schema<IEmailTemplateDocument>({
     type : String,
     required : true,
     trim : true,
-  },
-  description: {
-    type: String,
-    required: false,
-    trim: true,
   },
 }, {
   timestamps: true

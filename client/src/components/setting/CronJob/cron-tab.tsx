@@ -1,20 +1,14 @@
 import React from "react";
-import { TabsContent } from "../../ui/tabs";
+import { TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 
-import { CronJob, EmailTemplate } from "../setting-page";
 import { useCronManagement } from "@/hooks/useCronManagement";
 import CronJobBuilder from "./CronJobBuilder";
 import CronJobList from "./CronJobList";
+import { Clock, Mail } from "lucide-react";
 
-// --- Parent CronTabContent Component ---
-interface CronTabProps {
-  cronJobs: CronJob[];
-  setCronJobs: React.Dispatch<React.SetStateAction<CronJob[]>>;
-  emailTemplates: EmailTemplate[];
-}
-
-const CronTabContent: React.FC<CronTabProps> = (props) => {
+const CronTabContent = () => {
   const {
+    cronJobs,
     cronBuilder,
     addCronJob,
     deleteCronJob,
@@ -31,39 +25,52 @@ const CronTabContent: React.FC<CronTabProps> = (props) => {
     formatNextRun,
     toggleCronJob,
     getTemplateName,
-  } = useCronManagement(
-    props.cronJobs,
-    props.setCronJobs,
-    props.emailTemplates,
-  );
+    emailTemplates,
+  } = useCronManagement();
 
   return (
-    <TabsContent value="cron-jobs" className="flex-1 overflow-hidden px-6">
-      <div className="h-full grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <CronJobBuilder
-          cronBuilder={cronBuilder}
-          setCronBuilder={setCronBuilder}
-          emailTemplates={props.emailTemplates}
-          addCronJob={addCronJob}
-          usePreset={usePreset}
-          setSelectedPreset={setSelectedPreset}
-          selectedPreset={selectedPreset}
-          setUsePreset={setUsePreset}
-          timeOptions={timeOptions}
-          hourOptions={hourOptions}
-          dayOptions={dayOptions}
-          monthOptions={monthOptions}
-          generateCronExpression={generateCronExpression}
-        />
-        <CronJobList
-          cronJobs={props.cronJobs}
-          toggleCronJob={toggleCronJob}
-          deleteCronJob={deleteCronJob}
-          getTemplateName={getTemplateName}
-          formatNextRun={formatNextRun}
-        />
-      </div>
-    </TabsContent>
+    <>
+      <TabsList className="grid w-full grid-cols-2 mx-6 mt-6">
+        <TabsTrigger value="cron-jobs" className="flex items-center gap-2">
+          <Clock className="w-4 h-4" />
+          Cron Jobs ({cronJobs.length})
+        </TabsTrigger>
+        <TabsTrigger
+          value="email-templates"
+          className="flex items-center gap-2"
+        >
+          <Mail className="w-4 h-4" />
+          Email Templates (
+          {emailTemplates && emailTemplates.length ? emailTemplates.length : 0})
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="cron-jobs" className="flex-1 overflow-hidden px-6">
+        <div className="h-full grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <CronJobBuilder
+            cronBuilder={cronBuilder}
+            setCronBuilder={setCronBuilder}
+            emailTemplates={emailTemplates}
+            addCronJob={addCronJob}
+            usePreset={usePreset}
+            setSelectedPreset={setSelectedPreset}
+            selectedPreset={selectedPreset}
+            setUsePreset={setUsePreset}
+            timeOptions={timeOptions}
+            hourOptions={hourOptions}
+            dayOptions={dayOptions}
+            monthOptions={monthOptions}
+            generateCronExpression={generateCronExpression}
+          />
+          <CronJobList
+            cronJobs={cronJobs}
+            toggleCronJob={toggleCronJob}
+            deleteCronJob={deleteCronJob}
+            getTemplateName={getTemplateName}
+            formatNextRun={formatNextRun}
+          />
+        </div>
+      </TabsContent>
+    </>
   );
 };
 

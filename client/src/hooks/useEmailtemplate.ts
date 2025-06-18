@@ -1,4 +1,4 @@
-import { GetApiResponse, MUTATIONS, QURIES } from "@/api/CronApi";
+import { IEmailTemplate, MUTATIONS, QUERIES } from "@/api/emailTemplateApi";
 import {
   keepPreviousData,
   useMutation,
@@ -6,23 +6,23 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-const CRON_QUERY = "GET_CRON_DATA";
-export const useGetCronData = () => {
-  return useQuery<GetApiResponse>({
-    queryKey: [CRON_QUERY],
-    queryFn: () => QURIES.getCron(),
+const EMAIL_TEMPLATE_QUERY = "GET_EMAIL_TEMPLATE_DATA";
+export const useGetEmailTemplateData = () => {
+  return useQuery<IEmailTemplate[]>({
+    queryKey: [EMAIL_TEMPLATE_QUERY],
+    queryFn: () => QUERIES.getEmailTemplates(),
     placeholderData: keepPreviousData,
   });
 };
 
-export const useCreateCron = () => {
+export const useCreateEmailTemplate = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: MUTATIONS.createCron,
+    mutationFn: MUTATIONS.createEmailTemplates,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [CRON_QUERY],
+        queryKey: [EMAIL_TEMPLATE_QUERY],
       });
     },
     onError: (error) => {
@@ -31,14 +31,14 @@ export const useCreateCron = () => {
   });
 };
 
-export const useUpdateCron = () => {
+export const useUpdateEmailTemplate = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: MUTATIONS.editCron,
+    mutationFn: MUTATIONS.editEmailTemplates,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [CRON_QUERY],
+        queryKey: [EMAIL_TEMPLATE_QUERY],
       });
     },
     onError: (error) => {
@@ -47,14 +47,14 @@ export const useUpdateCron = () => {
   });
 };
 
-export const useDeleteCron = () => {
+export const useDeleteEmailTemplate = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: MUTATIONS.deleteCron,
+    mutationFn: MUTATIONS.deleteEmailTemplates,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [CRON_QUERY],
+        queryKey: [EMAIL_TEMPLATE_QUERY],
       });
     },
     onError: (error) => {

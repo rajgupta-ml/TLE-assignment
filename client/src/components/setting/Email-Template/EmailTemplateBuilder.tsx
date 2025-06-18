@@ -13,9 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle, Plus } from "lucide-react";
 
 interface EmailTemplateBuilderProps {
-  newEmailTemplate: { name: string; subject: string; content: string };
+  newEmailTemplate: { name: string; subject: string; body: string };
   setNewEmailTemplate: React.Dispatch<
-    React.SetStateAction<{ name: string; subject: string; content: string }>
+    React.SetStateAction<{ name: string; subject: string; body: string }>
   >;
   addEmailTemplate: () => void;
   htmlError: string;
@@ -89,7 +89,7 @@ export const EmailTemplateBuilder: React.FC<EmailTemplateBuilderProps> = ({
               </body>
               </html>`}
             className="min-h-[200px] resize-none font-mono text-sm"
-            value={newEmailTemplate.content}
+            value={newEmailTemplate.body}
             onChange={(e) => handleTemplateContentChange(e.target.value)}
           />
           {htmlError && (
@@ -109,7 +109,7 @@ export const EmailTemplateBuilder: React.FC<EmailTemplateBuilderProps> = ({
           disabled={
             !newEmailTemplate.name ||
             !newEmailTemplate.subject ||
-            !newEmailTemplate.content ||
+            !newEmailTemplate.body ||
             !!htmlError // Disable if there's an HTML error
           }
         >

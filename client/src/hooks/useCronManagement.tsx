@@ -1,25 +1,25 @@
-import { CronJob, EmailTemplate } from "@/components/setting/setting-page";
+import { CronJob } from "@/components/setting/setting-page";
+import {
+  useCreateCron,
+  useDeleteCron,
+  useGetCronData,
+  useUpdateCron,
+} from "./useCron";
 import { useState } from "react";
+import { useGetEmailTemplateData } from "./useEmailtemplate";
 
-interface CronBuilder {
-  name: string;
-  second: string;
-  minute: string;
-  hour: string;
-  day: string;
-  month: string;
-  year: string;
-  emailTemplateId: string;
-}
+export const useCronManagement = () => {
+  const { data: cronJobsData, isLoading, isError } = useGetCronData();
+  const { data: emailTemplates } = useGetEmailTemplateData();
+  const cronJobs: CronJob[] = cronJobsData?.data || [];
 
-export const useCronManagement = (
-  cronJobs: CronJob[],
-  setCronJobs: React.Dispatch<React.SetStateAction<CronJob[]>>,
-  emailTemplates: EmailTemplate[],
-) => {
+  const { mutate: createCronMutate } = useCreateCron();
+  const { mutate: updateCronMutate } = useUpdateCron();
+  const { mutate: deleteCronMutate } = useDeleteCron();
+
   const [usePreset, setUsePreset] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState("");
-  const [cronBuilder, setCronBuilder] = useState<CronBuilder>({
+  const [cronBuilder, setCronBuilder] = useState({
     name: "",
     second: "0",
     minute: "0",
@@ -45,15 +45,13 @@ export const useCronManagement = (
     if (!cronBuilder.name || !cronBuilder.emailTemplateId) return;
 
     const schedule = generateCronExpression();
-    const newJob: CronJob = {
-      id: Date.now().toString(),
-      name: cronBuilder.name,
-      cronSchedule: schedule,
+    createCronMutate({
       emailTemplateId: cronBuilder.emailTemplateId,
-      isActive: false,
-    };
+      cronSchedule: schedule,
+      name: cronBuilder.name,
+    });
 
-    setCronJobs([...cronJobs, newJob]);
+    // Reset form fields
     setCronBuilder({
       name: "",
       second: "0",
@@ -68,20 +66,22 @@ export const useCronManagement = (
     setUsePreset(false);
   };
 
-  const toggleCronJob = (id: string) => {
-    setCronJobs(
-      cronJobs.map((job) =>
-        job.id === id ? { ...job, isActive: !job.isActive } : job,
-      ),
-    );
+  const toggleCronJob = (id: string, currentIsActive: boolean) => {
+    console.log(currentIsActive);
+    // Use updateCronMutate to update isActive status
+    updateCronMutate({ id, isActive: !currentIsActive });
   };
 
   const deleteCronJob = (id: string) => {
-    setCronJobs(cronJobs.filter((job) => job.id !== id));
+    // Use deleteCronMutate to delete the cron job
+    deleteCronMutate(id);
   };
 
   const getTemplateName = (templateId: string) => {
-    const template = emailTemplates.find((t) => t.id === templateId);
+    if (!emailTemplates) {
+      return;
+    }
+    const template = emailTemplates.find((t) => t._id === templateId);
     return template ? template.name : `Template ${templateId}`;
   };
 
@@ -91,6 +91,10 @@ export const useCronManagement = (
   };
 
   return {
+    cronJobs,
+    emailTemplates, // Return the fetched cron jobs
+    isLoading,
+    isError,
     timeOptions,
     hourOptions,
     dayOptions,

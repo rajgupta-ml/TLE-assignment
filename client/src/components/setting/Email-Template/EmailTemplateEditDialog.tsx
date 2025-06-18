@@ -1,5 +1,4 @@
 import { Dialog } from "@radix-ui/react-dialog";
-import { EmailTemplate } from "../setting-page";
 import {
   DialogContent,
   DialogDescription,
@@ -12,15 +11,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IEmailTemplate } from "@/api/emailTemplateApi";
 
 interface EmailTemplateEditDialogProps {
-  editingTemplate: EmailTemplate | null;
+  editingTemplate: IEmailTemplate | null;
   setEditingTemplate: React.Dispatch<
-    React.SetStateAction<EmailTemplate | null>
+    React.SetStateAction<IEmailTemplate | null>
   >;
-  handleTemplateContentChange: (content: string, isEditing: boolean) => void;
+  handleTemplateContentChange: (body: string, isEditing: boolean) => void;
   htmlError: string;
-  saveEditedTemplate: () => void;
+  saveEditedTemplate: (id: string) => void;
   sanitizeHtml: (html: string) => string;
 }
 
@@ -79,7 +79,7 @@ export const EmailTemplateEditDialog: React.FC<
                 <Label>HTML Content</Label>
                 <Textarea
                   className="h-64 resize-none font-mono text-sm"
-                  value={editingTemplate.content}
+                  value={editingTemplate.body}
                   onChange={(e) =>
                     handleTemplateContentChange(e.target.value, true)
                   }
@@ -94,7 +94,7 @@ export const EmailTemplateEditDialog: React.FC<
               <div className="space-y-2">
                 <Label>Live Preview</Label>
                 <iframe
-                  srcDoc={sanitizeHtml(editingTemplate.content)}
+                  srcDoc={sanitizeHtml(editingTemplate.body)}
                   className="w-full h-64 border rounded"
                   title="Live preview"
                   sandbox="allow-same-origin"
@@ -108,7 +108,10 @@ export const EmailTemplateEditDialog: React.FC<
               >
                 Cancel
               </Button>
-              <Button onClick={saveEditedTemplate} disabled={!!htmlError}>
+              <Button
+                onClick={() => saveEditedTemplate(editingTemplate._id)}
+                disabled={!!htmlError}
+              >
                 Save Changes
               </Button>
             </div>

@@ -1,16 +1,17 @@
-import { Dialog, DialogContent } from "@radix-ui/react-dialog";
-import { EmailTemplate } from "../setting-page";
 import {
+  Dialog,
+  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { IEmailTemplate } from "@/api/emailTemplateApi";
 
 // EmailTemplatePreviewDialog.tsx
 interface EmailTemplatePreviewDialogProps {
-  previewTemplate: EmailTemplate | null;
+  previewTemplate: IEmailTemplate | null;
   setPreviewTemplate: React.Dispatch<
-    React.SetStateAction<EmailTemplate | null>
+    React.SetStateAction<IEmailTemplate | null>
   >;
   sanitizeHtml: (html: string) => string;
 }
@@ -32,9 +33,7 @@ export const EmailTemplatePreviewDialog: React.FC<
         </DialogHeader>
         <div className="flex-1 overflow-hidden">
           <iframe
-            srcDoc={
-              previewTemplate ? sanitizeHtml(previewTemplate.content) : ""
-            }
+            srcDoc={previewTemplate ? sanitizeHtml(previewTemplate.body) : ""}
             className="w-full h-96 border rounded"
             title={`Full preview of ${previewTemplate?.name}`}
             sandbox="allow-same-origin"

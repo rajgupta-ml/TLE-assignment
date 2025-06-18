@@ -2,7 +2,7 @@ import axios from "axios";
 import { BASE_URL } from "./constant";
 
 export interface ICron {
-  id: string;
+  _id: string;
   name: string;
   cronSchedule: string;
   isActive: boolean;
@@ -33,11 +33,17 @@ export const MUTATIONS = {
   createCron: async ({
     emailTemplateId,
     cronSchedule,
+    name,
   }: {
     emailTemplateId: string;
     cronSchedule: string;
+    name: string;
   }) => {
-    return await axios.post(CRON_URL), { emailTemplateId, cronSchedule };
+    return await axios.post(CRON_URL, {
+      emailTemplateId,
+      cronSchedule,
+      name,
+    });
   },
 
   editCron: async ({ id, isActive }: { id: string; isActive: boolean }) => {

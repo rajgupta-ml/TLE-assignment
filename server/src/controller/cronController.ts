@@ -160,7 +160,7 @@ export class CronController {
 
         try {
             const deleteResultResponse = await this.cronJobModel.delete(id);
-
+            jobScheduler.destroyJob(id);
             if (deleteResultResponse) {
                 res.status(Number(HttpStatusCode.OK)).json({
                     success: true,

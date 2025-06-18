@@ -1,3 +1,4 @@
+"use client";
 import {
   Card,
   CardContent,
@@ -5,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { EmailTemplate } from "../setting-page";
 import { Plus, Timer } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { IEmailTemplate } from "@/api/emailTemplateApi";
+import { useEffect } from "react";
 
 const PRESET_SCHEDULES = [
   { label: "Every minute", value: "0 * * * * *" },
@@ -31,7 +33,7 @@ const PRESET_SCHEDULES = [
 interface CronJobBuilderProps {
   cronBuilder: any; // Type according to useCronManagement's return
   setCronBuilder: React.Dispatch<React.SetStateAction<any>>; // Type according to useCronManagement's return
-  emailTemplates: EmailTemplate[];
+  emailTemplates: IEmailTemplate[] | undefined;
   addCronJob: () => void;
   usePreset: boolean;
   setSelectedPreset: React.Dispatch<React.SetStateAction<string>>;
@@ -59,6 +61,9 @@ const CronJobBuilder: React.FC<CronJobBuilderProps> = ({
   monthOptions,
   generateCronExpression,
 }) => {
+  useEffect(() => {
+    console.log(cronBuilder);
+  }, [cronBuilder]);
   return (
     <Card className="xl:col-span-1">
       <CardHeader>
@@ -95,13 +100,21 @@ const CronJobBuilder: React.FC<CronJobBuilderProps> = ({
               <SelectValue placeholder="Select a template" />
             </SelectTrigger>
             <SelectContent>
-              {emailTemplates.map((template) => (
-                <SelectItem key={template.id} value={template.id}>
+              {emailTemplates && emailTemplates.length > 0 ? (
+                emailTemplates.map((template) => (
+                  <SelectItem key={template._id} value={template._id}>
+                    <div className="flex flex-col">
+                      <span>{template.name}</span>
+                    </div>
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="no-templates" disabled>
                   <div className="flex flex-col">
-                    <span>{template.name}</span>
+                    <span>{"Create template First"}</span>
                   </div>
                 </SelectItem>
-              ))}
+              )}
             </SelectContent>
           </Select>
         </div>
