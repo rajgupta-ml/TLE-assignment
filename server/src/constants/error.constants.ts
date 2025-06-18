@@ -10,6 +10,7 @@ export enum DbErrorCodes {
   }
   
   export enum DbErrorMessages {
+    FAILED_TO_CREATE = "FAILED TO CREATE",
     VALIDATION_ERROR = 'Validation failed for one or more fields.',
     DUPLICATE_KEY_ERROR = 'Duplicate key error: a record with the same unique field already exists.',
     CAST_ERROR = 'Invalid identifier format or type mismatch.',
