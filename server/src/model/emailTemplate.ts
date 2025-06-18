@@ -4,6 +4,7 @@ import { Schema, Document } from "mongoose";
 export interface IEmailTemplate {
   subject: string;
   email: string;
+  body : string;
   description: string;
 }
 
@@ -18,10 +19,10 @@ const EmailTemplateSchema = new Schema<IEmailTemplateDocument>({
     required: true,
     trim: true,
   },
-  email: {
-    type: String,
-    required: true,
-    trim: true,
+  body : {
+    type : String,
+    required : true,
+    trim : true,
   },
   description: {
     type: String,

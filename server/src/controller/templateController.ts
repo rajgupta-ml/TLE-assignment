@@ -6,25 +6,14 @@ import { isValidObjectId, MongooseError } from "mongoose";
 import {type IEmailTemplate, type IEmailTemplateDocument} from "../model/emailTemplate";
 import { DbError } from "../error/dbError";
 import { DbErrorCodes, DbErrorMessages, GenericMessage } from "../constants/error.constants";
+import { handleError } from "../error/handleError";
 
 export class EmailTemplateController {
 
 
     constructor(private emailTempleteModel : DbService<IEmailTemplateDocument>) {}
 
-    private handleError(error: unknown, next: NextFunction) {
-        if (error instanceof DbError) {
-            return next(error);
-        }
-        if (error instanceof MongooseError) {
-            return next(new DbError(DbErrorCodes.UNKNOWN_ERROR, (error.message as DbErrorMessages), HttpStatusCode.INTERNAL_SERVER_ERROR, error.cause));
-        }
-        return next(new ApiError({
-            message: GenericMessage.GENERIC_ERROR,
-            statusCode: Number(HttpStatusCode.INTERNAL_SERVER_ERROR),
-            errorCode: DbErrorCodes.UNKNOWN_ERROR,
-        }));
-    }
+    
     
     getAllEmailTemplate = async (req: Request, res : Response, next : NextFunction) => {
         try {
@@ -45,7 +34,7 @@ export class EmailTemplateController {
                 total : template.total,
             })
         } catch (error) {
-            this.handleError(error, next);           
+            handleError(error, next);           
         }
 
 
@@ -55,7 +44,7 @@ export class EmailTemplateController {
     createEmailTemplate = async (req: Request, res: Response, next: NextFunction) => {
         const templateData: Omit<IEmailTemplateDocument, 'createdAt' | 'updatedAt'> = req.body;
 
-        if (!templateData.subject || !templateData.email || !templateData.description) {
+        if (!templateData.subject || !templateData.body || !templateData.description) {
             return next(new ApiError({
                 message: "Missing required fields: studentId, subject, email, and description are required.",
                 statusCode: Number(HttpStatusCode.BAD_REQUEST)
@@ -75,7 +64,7 @@ export class EmailTemplateController {
                 data: newTemplateResponse,
             });
         } catch (error) {
-            this.handleError(error, next);
+            handleError(error, next);
         }
     };
 
@@ -124,7 +113,7 @@ export class EmailTemplateController {
                 data: updatedTemplateResponse,
             });
         } catch (error) {
-            this.handleError(error, next);
+            handleError(error, next);
         }
     };
 
@@ -160,7 +149,7 @@ export class EmailTemplateController {
                 });
             }
         } catch (error) {
-            this.handleError(error, next);
+            handleError(error, next);
         }
     };
 

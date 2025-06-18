@@ -18,17 +18,17 @@ const studentController = new StudentController(student, stats, StatService);
      * @description Get all students or filter by query parameters
      * @access Public
 */
-studentRouter.get("/students", studentController.getStudents);
+studentRouter.get("/", studentController.getStudents);
 
 
-studentRouter.get("/students/highest-achievers", studentController.getHighestAchievers)
+studentRouter.get("/highest-achievers", studentController.getHighestAchievers)
 /**
      * @route GET /api/students/123
      * @description Get  students analytics data by id
      * @access Public
 */
 
-studentRouter.get("/students/:id", studentController.getStudentAnalyticsById);
+studentRouter.get("/:id", studentController.getStudentAnalyticsById);
 
 /**
      * @route POST /api/students/highest-achievers
@@ -38,7 +38,7 @@ studentRouter.get("/students/:id", studentController.getStudentAnalyticsById);
 
 
 
-studentRouter.post("/students", studentController.addStudents);
+studentRouter.post("/", studentController.addStudents);
 
 /**
      * @route PUT /api/students/:id
@@ -46,13 +46,13 @@ studentRouter.post("/students", studentController.addStudents);
      * @access Public
 */
 
-studentRouter.put("/students/:id", studentController.updateStudents);
+studentRouter.put("/:id", studentController.updateStudents);
 
 /**
      * @route DELETE /api/students/:id
      * @description Delete a student by ID
      * @access Public
 */
-studentRouter.delete("/students/:id", studentController.deleteStudents);
+studentRouter.delete("/:id", studentController.deleteStudents);
 
 export default studentRouter

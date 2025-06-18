@@ -10,6 +10,9 @@ function requireEnv(key: string): string {
     },
     db : {
         URI : requireEnv("MONGO_DB_URI")
+    },
+    resend : {
+      API : requireEnv("RESEND_API")
     }
   }
   

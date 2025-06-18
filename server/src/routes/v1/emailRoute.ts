@@ -7,13 +7,11 @@ const emailRouter = Router();
 const  dbService = new DbService<IEmailTemplateDocument>(EmailTemplateModel)
 const emailController = new EmailTemplateController(dbService)
 // Id => By userID;
-emailRouter.get("/template/all", emailController.getAllEmailTemplate);
-
-emailRouter.post("/template", emailController.createEmailTemplate); 
-
+emailRouter.get("/all", emailController.getAllEmailTemplate);
+emailRouter.post("/", emailController.createEmailTemplate); 
 
 //Id => By template ID;
-emailRouter.put("/template/:id", emailController.updateEmailTemplate);
-emailRouter.delete("/template/:id", emailController.deleteEmailTemplate)
+emailRouter.put("/:id", emailController.updateEmailTemplate);
+emailRouter.delete("/:id", emailController.deleteEmailTemplate)
 
 export default emailRouter;

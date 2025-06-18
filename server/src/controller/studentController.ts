@@ -9,6 +9,7 @@ import { DbError } from "../error/dbError";
 import type { IStudentAnalyticsDocument } from "../model/studentAnalystics";
 import type { StatsService } from "../service/statsService";
 import type { CodeforcesSubmission, IContestData, studentAnalytics } from "../types/analytics";
+import { handleError } from "../error/handleError";
 
 
 interface IUserMetricsResult {
@@ -40,22 +41,8 @@ export class StudentController {
     }
 
 
-    private handleError(error: unknown, next: NextFunction) {
-        if (error instanceof DbError) {
-            return next(error);
-        }
-        if (error instanceof MongooseError) {
-            return next(new DbError(DbErrorCodes.UNKNOWN_ERROR, (error.message as DbErrorMessages), HttpStatusCode.INTERNAL_SERVER_ERROR, error.cause));
-        }
-        return next(new ApiError({
-            message: GenericMessage.GENERIC_ERROR,
-            statusCode: Number(HttpStatusCode.INTERNAL_SERVER_ERROR),
-            errorCode: DbErrorCodes.UNKNOWN_ERROR,
-        }));
-    }
     
     getStudents = async (req : Request, res : Response, next : NextFunction) => {
-        console.log("get students")
         try {
             const { page, limit, sort, ...filter } = req.query; // Extract page, limit, sort, and remaining as filter
             const pageNum = parseInt(page as string) || 1;
@@ -118,12 +105,11 @@ export class StudentController {
             });
         } catch (error) {
             // console.log(error);
-            this.handleError(error, next);
+            handleError(error, next);
         }
     }
 
     getStudentAnalyticsById = async (req: Request, res: Response, next: NextFunction) => {
-        console.log("getStudentAna")
         
         try {
             const { id } = req.params; // This ID is expected to be the Student's _id
@@ -158,7 +144,7 @@ export class StudentController {
             });
 
         } catch (error) {
-            this.handleError(error, next);
+            handleError(error, next);
         }
     }
 
@@ -248,8 +234,8 @@ export class StudentController {
                 highestAchieversWithUserData
             })
         }catch(error){
-            console.error(error);
-            this.handleError(error, next);
+            
+            handleError(error, next);
         }
     }
     
@@ -313,7 +299,7 @@ export class StudentController {
                 studentStats : stats,
             });
         } catch(error) {
-            this.handleError(error, next);
+            handleError(error, next);
 
         }
     }
@@ -348,7 +334,7 @@ export class StudentController {
                 data: deletedStudent,
             });
         } catch (error) {
-            this.handleError(error, next);
+            handleError(error, next);
         }
     }
 
@@ -449,8 +435,7 @@ export class StudentController {
             });
 
         } catch (error) {
-            console.log(error);
-            this.handleError(error, next);
+            handleError(error, next);
         }
     }
 
