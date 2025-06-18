@@ -1,3 +1,5 @@
+// components/ClientRootLayout.tsx
+
 "use client";
 import { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
@@ -5,7 +7,7 @@ import { Logo, LogoIcon } from "@/components/logo/logo";
 import { adminLink, sidebarLinks } from "@/data/dashboard-data";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ThemeSwitcher from "./ThemeSwitcher";
-import { Provider } from "./provider/provider";
+import { Provider } from "./provider/provider"; // Assuming this handles theme class (e.g., 'dark') on <html>
 
 export default function ClientRootLayout({
   children,
@@ -17,9 +19,10 @@ export default function ClientRootLayout({
 
   return (
     <Provider>
-      <div className="flex h-screen">
+      <div className="flex h-screen text-foreground">
         <Sidebar open={open} setOpen={setOpen}>
-          <SidebarBody className="justify-between gap-10">
+          <SidebarBody className="justify-between gap-10 bg-background  border-r">
+            {" "}
             <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
               {open ? <Logo /> : <LogoIcon />}
               <div className="mt-8 flex flex-col gap-2">

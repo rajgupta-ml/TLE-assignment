@@ -16,7 +16,6 @@ export const DashboardOverviewCards = () => {
         name: data.userName,
         number: "+" + data.number.toString(),
         _id: data._id,
-        color: "#FFECE7",
         title: "Fastest Improvement",
       };
     } else if (data.key == "highestConsistencyUser") {
@@ -24,7 +23,6 @@ export const DashboardOverviewCards = () => {
         name: data.userName,
         number: data.number.toString() + " days",
         _id: data._id,
-        color: "#F6F4FF",
         title: "Most Consitent",
       };
     } else {
@@ -32,20 +30,16 @@ export const DashboardOverviewCards = () => {
         name: data.userName,
         number: data.number.toString(),
         _id: data._id,
-        color: "#EDF6FF",
         title: "Highest Ranking",
       };
     }
   });
 
-  console.log(dashboardCardData);
-
   return (
-    <div className="grid grid-cols-subgrid sm:grid-cols-1 lg:grid-cols-3 gap-4 w-full">
+    <div className="grid grid-cols-subgrid sm:grid-cols-1 lg:grid-cols-3 gap-4 w-full ">
       {dashboardCardData.map((card, idx) => (
         <DashboardCard
           key={idx}
-          color={card.color}
           title={card.title}
           number={card.number}
           name={card.name}

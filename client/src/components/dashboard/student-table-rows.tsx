@@ -31,17 +31,13 @@ export const StudentTableRows = ({
   return (
     <TableRow
       key={student._id}
-      className="relative transition-all duration-200 hover:bg-[var(--acet-blue)] hover:shadow-lg hover:scale-[1.02] "
+      className="relative transition-all duration-200 text-foreground bg-card shadow  "
     >
-      <TableCell className="font-medium text-gray-900 py-4 px-6">
-        {student.name}
-      </TableCell>
-      <TableCell className="text-gray-700 py-4 px-6">{student.email}</TableCell>
-      <TableCell className="text-gray-700 py-4 px-6">
-        {student.phone_number}
-      </TableCell>
-      <TableCell className="text-gray-700 py-4 px-6">
-        <code className="bg-gray-100 px-2 py-1 rounded text-sm">
+      <TableCell className="font-medium  py-4 px-6 ">{student.name}</TableCell>
+      <TableCell className=" py-4 px-6">{student.email}</TableCell>
+      <TableCell className=" py-4 px-6">{student.phone_number}</TableCell>
+      <TableCell className=" py-4 px-6">
+        <code className="px-2 py-1 rounded text-sm">
           {student.codeforceHandle}
         </code>
       </TableCell>

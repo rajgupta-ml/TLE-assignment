@@ -30,8 +30,8 @@ const CronTabContent = () => {
 
   return (
     <>
-      <TabsList className="grid w-full grid-cols-2 mx-6 mt-6">
-        <TabsTrigger value="cron-jobs" className="flex items-center gap-2">
+      <TabsList className="grid w-full grid-cols-2 mx-6 mt-6 ">
+        <TabsTrigger value="cron-jobs" className="flex items-center gap-2 ">
           <Clock className="w-4 h-4" />
           Cron Jobs ({cronJobs.length})
         </TabsTrigger>

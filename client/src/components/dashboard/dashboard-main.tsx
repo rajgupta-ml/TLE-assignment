@@ -1,5 +1,4 @@
-"use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { DashboardOverviewCards } from "./dashboard-overview-cards";
 import { StudentsDataTable } from "./student-data-table";
 import AddStudentPopup from "./add-student-popup";
@@ -33,17 +32,21 @@ export const DashboardMain = () => {
 
   if (students) {
     return (
-      <div className="flex flex-1 max-w-[3840px] mx-auto">
-        <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-10 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="flex flex-1 max-w-[3840px] mx-auto bg-background">
+        <div className="flex h-full w-full flex-1 flex-col gap-2  border-border dark:bg-card">
           <DashboardHeader onClose={handleSetModal}></DashboardHeader>
-          <DashboardOverviewCards />
-          <div className="flex flex-1 gap-2">
-            <StudentsDataTable
-              students={students}
-              pagination={pagination}
-              onUpdateStudent={handleUpdateStudent}
-              onDeleteStudent={handleDeleteStudent}
-            />
+          <div className="p-4">
+            <div className="p-4 border rounded-xl">
+              <DashboardOverviewCards />
+              <div className="flex flex-1 gap-2">
+                <StudentsDataTable
+                  students={students}
+                  pagination={pagination}
+                  onUpdateStudent={handleUpdateStudent}
+                  onDeleteStudent={handleDeleteStudent}
+                />
+              </div>
+            </div>
           </div>
         </div>
         <AddStudentPopup

@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { User, Mail, Phone, Code } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { OmiitedStudents } from "@/api/studentApi";
-import usePagination from "@/hooks/usePagination";
 
 interface AddStudentPopupProps {
   onAddStudent: (student: OmiitedStudents) => void;
@@ -329,7 +328,7 @@ const AddStudentPopup = ({
                   </Button>
                   <Button
                     type="submit"
-                    className="bg-[var(--acet-blue)]/50 hover:bg-[var(--acet-blue)] cursor-pointer text-[var(--text-acet-blue)]"
+                    className="bg-primary hover:bg-primary/80 cursor-pointer text-background"
                   >
                     Add Student
                   </Button>

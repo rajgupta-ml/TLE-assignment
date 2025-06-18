@@ -26,7 +26,7 @@ export default function SettingPage() {
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <Tabs defaultValue="cron-jobs" className="h-full flex flex-col">
+        <Tabs defaultValue="cron-jobs" className="h-full flex flex-col p-4 ">
           <CronTabContent></CronTabContent>
           <EmailTemplateTab></EmailTemplateTab>
         </Tabs>
