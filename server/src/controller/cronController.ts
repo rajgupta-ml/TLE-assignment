@@ -40,7 +40,7 @@ export class CronController {
         const cronJobData: Partial<ICronJob> = req.body;
 
         // Validate required fields
-        if (!cronJobData.cronSchedule || !cronJobData.emailTemplateId) {
+        if (!cronJobData.cronSchedule || !cronJobData.emailTemplateId || !cronJobData.name) {
              return next(new ApiError({
                 message: "Missing required fields: cronSchedule and emailTemplateId are required.",
                 statusCode: Number(HttpStatusCode.BAD_REQUEST)

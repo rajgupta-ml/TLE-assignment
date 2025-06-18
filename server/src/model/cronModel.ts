@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface ICronJobBase {
+    name : string;
     cronSchedule: string;
     isActive: boolean;
     lastRunAt?: Date;
