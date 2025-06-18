@@ -340,7 +340,6 @@ export class StudentController {
 
     
     updateStudents = async (req: Request, res: Response, next: NextFunction) => {
-        console.log("updateStudent")
         try {
             const { id } = req.params; 
             const updateData = req.body; 
@@ -394,7 +393,9 @@ export class StudentController {
                     message: "Student updated successfully.",
                     data: updatedStudent,
                 });
+                return;
             }
+
 
             const durations = req.body.duration || [7, 30, 365];
             const durationsArray = Array.isArray(durations) ? durations : [durations];

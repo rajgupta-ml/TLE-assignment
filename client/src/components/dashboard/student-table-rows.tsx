@@ -3,12 +3,13 @@ import { Student } from "@/types";
 import { TableCell, TableRow } from "../ui/table";
 import { getRatingColor } from "@/lib/helpers/dashboard-helpers";
 import { Button } from "../ui/button";
-import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { Edit, Eye, Mail, MoreHorizontal, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 interface IProps {
@@ -17,6 +18,7 @@ interface IProps {
   onDeleteStudent: (id: string) => void;
   setOpenEdit: () => void;
   setOpenAnalyticsModal: () => void;
+  handleUpdate: (id: string, student: Partial<Student>) => void;
 }
 export const StudentTableRows = ({
   student,
@@ -24,6 +26,7 @@ export const StudentTableRows = ({
   onDeleteStudent,
   setOpenEdit,
   setOpenAnalyticsModal,
+  handleUpdate,
 }: IProps) => {
   return (
     <TableRow
@@ -80,7 +83,40 @@ export const StudentTableRows = ({
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-48">
+              {/* Email Status Info - Non-clickable */}
+              <div className="px-2 py-1.5 text-sm text-gray-500 border-b">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  <span>Emails Sent: {student.numberOfEmailSent || 0}</span>
+                </div>
+              </div>
+
+              {/* Email Toggle */}
+              <DropdownMenuItem
+                className={`flex items-center gap-2 cursor-pointer ${
+                  student.isSendEmailActive
+                    ? "text-green-600 bg-green-50 hover:bg-green-100"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+                onClick={() =>
+                  handleUpdate(student._id, {
+                    ...student,
+                    isSendEmailActive: !student.isSendEmailActive,
+                  })
+                }
+              >
+                <div
+                  className={`w-2 h-2 rounded-full ${student.numberOfEmailSent ? "bg-green-500" : "bg-gray-400"}`}
+                />
+                {student.isSendEmailActive
+                  ? "Deactivate Email"
+                  : "Activate Email"}
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {/* Edit */}
               <DropdownMenuItem
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => {
@@ -91,6 +127,8 @@ export const StudentTableRows = ({
                 <Edit className="h-4 w-4" />
                 Edit
               </DropdownMenuItem>
+
+              {/* Delete */}
               <DropdownMenuItem
                 onClick={() => onDeleteStudent(student._id)}
                 className="flex items-center gap-2 text-red-600"

@@ -59,6 +59,7 @@ export const StudentsDataTable: React.FC<StudentsDataTableProps> = ({
                     setOpenEdit={toggleEditModal}
                     setSelectedStudent={setSelectedStudent}
                     student={student}
+                    handleUpdate={onUpdateStudent}
                   ></StudentTableRows>
                 ))}
               </TableBody>

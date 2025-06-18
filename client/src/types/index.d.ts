@@ -16,6 +16,8 @@ interface StudentMetrics {
 export interface Student {
   _id: string;
   name: string;
+  numberOfEmailSent?: number;
+  isSendEmailActive?: boolean;
   email: string;
   phone_number: string;
   codeforceHandle: string;
