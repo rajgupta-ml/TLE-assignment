@@ -1,9 +1,9 @@
 import cron, { type ScheduledTask} from 'node-cron';
-import CronJob from '../model/cronModel';
+import CronJob, { type ICronJob } from '../model/cronModel';
 import Student, { type IStudent } from '../model/student';
 
 import sendEmail  from './emailService.ts';
-import type { IEmailTemplate } from '../model/emailTemplate';
+import { EmailTemplateModel, type IEmailTemplate } from '../model/emailTemplate';
 import type mongoose from 'mongoose';
 
 
@@ -51,14 +51,14 @@ export class JobScheduler {
         try {
             console.info(`Executing job for cronJobId: ${cronJobId}`);
             
-            const cronJob = await CronJob.findById(cronJobId).populate('emailTemplates');
+            const cronJob = await CronJob.findById(cronJobId) as ICronJob;
+
             if (!cronJob || !cronJob.isActive) {
                 console.warn(`Cron job ${cronJobId} not found or inactive`);
                 return;
             }
 
-        
-            const emailTemplate = cronJob.emailTemplate as unknown as IEmailTemplate;
+            const emailTemplate = await EmailTemplateModel.findById(cronJob.emailTemplateId) as IEmailTemplate;
             if (!emailTemplate) {
                 console.error(`Email template not found for cronJobId: ${cronJobId}`);
                 return;
@@ -92,7 +92,7 @@ export class JobScheduler {
         try {
             const personalizedSubject = this.replacePlaceholders(emailTemplate.subject, student);
             const personalizedBody = this.replacePlaceholders(emailTemplate.body, student);
-
+            
             await sendEmail({
                 to: student.email,
                 subject: personalizedSubject,

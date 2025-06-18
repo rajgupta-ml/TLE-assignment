@@ -8,19 +8,25 @@ interface IEmail  {
     html : string,
 }
 const resend = new Resend(config.resend.API);
-const sendEmail = ({to, subject, html} :IEmail ) => {
+const sendEmail = async ({to, subject, html} :IEmail ) => {
 
-    try {
-        resend.emails.send({
-            from: 'onboarding@resend.dev',
-            to,
-            subject,
-            html,
-        });
-    } catch (error) {
-        console.log("Could Not sent the Email", error)    
-    }
-}
+            const {error } = await resend.emails.send({
+                from : "TLE <tle@send.rajgupta.in>", // Fixed format here
+                to : [to],
+                subject,
+                html,
+            });
 
 
+            if(error){
+                throw new Error("Email is not send");
+            }
+
+
+        }
+        
+
+            
+            
+            
 export default sendEmail

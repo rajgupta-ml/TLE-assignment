@@ -40,17 +40,17 @@ export class CronController {
         const cronJobData: Partial<ICronJob> = req.body;
 
         // Validate required fields
-        if (!cronJobData.cronSchedule || !cronJobData.emailTemplate) {
+        if (!cronJobData.cronSchedule || !cronJobData.emailTemplateId) {
              return next(new ApiError({
-                message: "Missing required fields: cronSchedule and emailTemplate are required.",
+                message: "Missing required fields: cronSchedule and emailTemplateId are required.",
                 statusCode: Number(HttpStatusCode.BAD_REQUEST)
             }));
         }
 
-        // Validate emailTemplate ObjectId
-        if (!isValidObjectId(cronJobData.emailTemplate)) {
+        // Validate emailTemplateId ObjectId
+        if (!isValidObjectId(cronJobData.emailTemplateId)) {
              return next(new ApiError({
-                message: "Invalid emailTemplate ID provided.",
+                message: "Invalid emailTemplateId ID provided.",
                 statusCode: Number(HttpStatusCode.BAD_REQUEST)
             }));
         }
@@ -106,7 +106,7 @@ export class CronController {
         }
 
         // Validate emailTemplate if provided in update
-        if (updateData.emailTemplate && !isValidObjectId(updateData.emailTemplate)) {
+        if (updateData.emailTemplateId && !isValidObjectId(updateData.emailTemplateId)) {
             return next(new ApiError({
                 message: "Invalid emailTemplate ID provided.",
                 statusCode: Number(HttpStatusCode.BAD_REQUEST)

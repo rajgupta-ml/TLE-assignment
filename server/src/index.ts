@@ -1,12 +1,10 @@
 import express from "express"
 import helmet from "helmet";
-import dotenv from "dotenv"
 import { config } from "./utils/config";
 import studentRouter from "./routes/v1/studentRouter";
 import { errorHandler } from "./middleware/ErrorMiddleware";
 import { connectDB } from "./utils/database";
 import cors from 'cors'
-import EmailTemplate from "./routes/v1/emailRoute";
 import emailRouter from "./routes/v1/emailRoute";
 import { jobScheduler } from "./service/jobScheduler";
 import cronRoutes from "./routes/v1/cronRoutes";

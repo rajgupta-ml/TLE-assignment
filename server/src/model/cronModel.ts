@@ -5,7 +5,7 @@ export interface ICronJobBase {
     isActive: boolean;
     lastRunAt?: Date;
     nextRunAt?: Date;
-    emailTemplate: Schema.Types.ObjectId ;
+    emailTemplateId: Schema.Types.ObjectId ;
 }
 
 export interface ICronJob extends ICronJobBase, Document {
@@ -22,7 +22,7 @@ const CronJobSchema = new Schema<ICronJob>(
         },
         isActive: {
             type: Boolean,
-            default: true,
+            default: false,
         },
         lastRunAt: {
             type: Date,
@@ -32,7 +32,7 @@ const CronJobSchema = new Schema<ICronJob>(
             type: Date,
             required: false,
         },
-        emailTemplate: {
+        emailTemplateId: {
             type: Schema.Types.ObjectId,
             ref: "EmailTemplate", 
             required: true,
