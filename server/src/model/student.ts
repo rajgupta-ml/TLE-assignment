@@ -6,7 +6,8 @@ export interface IStudent extends Document {
   phone_number: string;
   codeforceHandle: string;
   syncTime : Date,
-  numberOfEmailSent : number
+  numberOfEmailSent : number,
+  isSendEmailActive : Boolean,
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +52,10 @@ const StudentSchema = new Schema<IStudent>(
     syncTime : {
       type : Date,
       default : new Date()
+    },
+    isSendEmailActive : {
+      type : Boolean,
+      default : false,
     }
   },
   {
