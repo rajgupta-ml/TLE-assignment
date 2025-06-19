@@ -2,6 +2,17 @@
 
 A comprehensive web application for tracking and analyzing student performance on Codeforces competitive programming platform. Built with Next.js, TypeScript, and modern web technologies.
 
+# My Project
+
+<div>
+    <a href="https://www.loom.com/share/03a398bee1a5425e8bd78047f187bd7b">
+      <p>Full Stack Developer Project Showcase 🚀 - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/03a398bee1a5425e8bd78047f187bd7b">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/03a398bee1a5425e8bd78047f187bd7b-32e4d4e6682538f8-full-play.gif">
+    </a>
+</div>
+
 ## 🚀 Features
 
 ### 📊 Student Management
