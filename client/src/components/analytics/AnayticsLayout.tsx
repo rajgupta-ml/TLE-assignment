@@ -117,13 +117,13 @@ export default function CPAnalyticsModal({
           exit={{ opacity: 0 }}
         >
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 backdrop-blur-sm"
             onClick={toggle}
             aria-hidden="true"
           />
           <HeatmapTooltip tooltip={tooltip} />
           <motion.div
-            className="relative w-[90%] md:w-[80%] h-[90%] max-w-7xl bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg shadow-xl overflow-hidden flex flex-col"
+            className="relative w-[90%] md:w-[80%] h-[90%] max-w-7xl  border bg-background rounded-lg shadow-xl overflow-hidden flex flex-col"
             variants={modalVariants}
             initial="hidden"
             animate="visible"

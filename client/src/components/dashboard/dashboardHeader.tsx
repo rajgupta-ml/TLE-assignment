@@ -24,15 +24,6 @@ export const DashboardHeader = ({ onClose }: { onClose: () => void }) => {
         </div>
         <div className="flex gap-3">
           <Button
-            // onClick={() => downloadCSV(studentsData)}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Download className="size-4" />
-            Download CSV
-          </Button>
-
-          <Button
             onClick={onClose}
             className="flex items-center gap-2 bg-primary text-primary-foreground cursor-pointer"
           >

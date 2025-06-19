@@ -1,5 +1,5 @@
 export type ContestEntry = {
-  contenstId: number;
+  contenstid: number;
   date: string;
   rating: number;
   contest: string;

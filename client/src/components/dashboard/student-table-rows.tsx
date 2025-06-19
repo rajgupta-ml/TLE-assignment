@@ -3,7 +3,14 @@ import { Student } from "@/types";
 import { TableCell, TableRow } from "../ui/table";
 import { getRatingColor } from "@/lib/helpers/dashboard-helpers";
 import { Button } from "../ui/button";
-import { Edit, Eye, Mail, MoreHorizontal, Trash2 } from "lucide-react";
+import {
+  Download,
+  Edit,
+  Eye,
+  Mail,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
 import { Dialog, DialogTrigger } from "../ui/dialog";
 import {
   DropdownMenu,
@@ -12,6 +19,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useGetStudentAnalytics } from "@/hooks/useStudents";
+import { generateExcel } from "@/lib/helpers/convert-data-to-csv";
+import { writeFileXLSX } from "xlsx";
 interface IProps {
   student: Student;
   setSelectedStudent: (args: Student) => void;
@@ -28,6 +38,13 @@ export const StudentTableRows = ({
   setOpenAnalyticsModal,
   handleUpdate,
 }: IProps) => {
+  const { data } = useGetStudentAnalytics(student._id);
+  const handleDownload = (id: string) => {
+    if (!data) return;
+    const wb = generateExcel(data);
+    writeFileXLSX(wb, "user_data_metrics.xlsx");
+  };
+
   return (
     <TableRow
       key={student._id}
@@ -122,6 +139,14 @@ export const StudentTableRows = ({
               >
                 <Edit className="h-4 w-4" />
                 Edit
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => handleDownload(student._id)}
+              >
+                <Download className="h-4 w-4" />
+                Download
               </DropdownMenuItem>
 
               {/* Delete */}
